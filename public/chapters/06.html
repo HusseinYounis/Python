@@ -1,0 +1,174 @@
+﻿<div class="mb-6">
+        <span class="inline-block bg-primary-100 text-primary-700 text-xs font-bold px-3 py-1 rounded-full mb-3">CHAPTER 06</span>
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Object-Oriented Programming</h1>
+        <p class="text-slate-500">Classes, inheritance, encapsulation, polymorphism, and dunder methods.</p>
+      </div>
+
+      <section id="outcomes" class="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Learning Outcomes</h2>
+        <ul class="space-y-2 text-sm text-slate-700">
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Define classes with <code>__init__</code> and instance methods.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Implement single and multiple inheritance.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use properties for controlled attribute access.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Override dunder methods for operator overloading.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Apply class methods, static methods, and abstract base classes.</li>
+        </ul>
+      </section>
+
+      <section id="classes">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4">6.1 Defining Classes</h3>
+        <p class="mb-3">In Python, classes are defined with the <code>class</code> keyword. The constructor is <code>__init__</code> (unlike C++ constructors or Java constructors that share the class name). Every instance method takes <code>self</code> as its first parameter (equivalent to <code>this</code> in C++/Java, but explicit).</p>
+<pre><code>class Vector2D:
+    """A 2D vector with x and y components."""
+
+    def __init__(self, x: float, y: float):
+        self.x = x
+        self.y = y
+
+    def magnitude(self) -> float:
+        return (self.x ** 2 + self.y ** 2) ** 0.5
+
+    def __repr__(self) -> str:
+        return f"Vector2D({self.x}, {self.y})"
+
+v = Vector2D(3, 4)
+print(v.magnitude())  # 5.0
+print(v)              # Vector2D(3, 4)</code></pre>
+        <div class="note">Python has no <code>new</code> keyword. Calling <code>Vector2D(3, 4)</code> automatically creates the object and calls <code>__init__</code>.</div>
+      </section>
+
+      <section id="inheritance">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">6.2 Inheritance</h3>
+<pre><code>class Shape:
+    def area(self) -> float:
+        raise NotImplementedError
+
+class Circle(Shape):
+    def __init__(self, radius: float):
+        self.radius = radius
+
+    def area(self) -> float:
+        import math
+        return math.pi * self.radius ** 2
+
+class Rectangle(Shape):
+    def __init__(self, width: float, height: float):
+        self.width = width
+        self.height = height
+
+    def area(self) -> float:
+        return self.width * self.height
+
+# Polymorphism
+shapes: list[Shape] = [Circle(5), Rectangle(3, 4)]
+for s in shapes:
+    print(f"{type(s).__name__}: area = {s.area():.2f}")</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Multiple Inheritance and MRO</h4>
+<pre><code>class A:
+    def greet(self): return "A"
+
+class B(A):
+    def greet(self): return "B"
+
+class C(A):
+    def greet(self): return "C"
+
+class D(B, C):
+    pass
+
+d = D()
+print(d.greet())          # B (follows MRO)
+print(D.__mro__)          # D -> B -> C -> A -> object</code></pre>
+        <div class="note">Python uses C3 Linearization for method resolution order (MRO). Java does not support multiple class inheritance (only interface inheritance). C++ supports it but with the diamond problem complexity.</div>
+      </section>
+
+      <section id="encapsulation">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">6.3 Encapsulation and Properties</h3>
+        <p class="mb-3">Python uses a convention-based approach instead of access modifiers (<code>public</code>, <code>private</code>, <code>protected</code>). A single underscore <code>_attr</code> means "protected by convention"; a double underscore <code>__attr</code> triggers name mangling.</p>
+<pre><code>class Temperature:
+    def __init__(self, celsius: float):
+        self._celsius = celsius   # "protected" by convention
+
+    @property
+    def celsius(self) -> float:
+        return self._celsius
+
+    @celsius.setter
+    def celsius(self, value: float):
+        if value < -273.15:
+            raise ValueError("Below absolute zero")
+        self._celsius = value
+
+    @property
+    def fahrenheit(self) -> float:
+        return self._celsius * 9/5 + 32
+
+t = Temperature(100)
+print(t.fahrenheit)     # 212.0
+t.celsius = -300        # ValueError!</code></pre>
+      </section>
+
+      <section id="dunder-methods">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">6.4 Dunder Methods (Operator Overloading)</h3>
+<pre><code>class Vector2D:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __add__(self, other):
+        return Vector2D(self.x + other.x, self.y + other.y)
+
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
+    def __len__(self):
+        return 2
+
+    def __getitem__(self, index):
+        return (self.x, self.y)[index]
+
+    def __repr__(self):
+        return f"Vector2D({self.x}, {self.y})"
+
+a = Vector2D(1, 2)
+b = Vector2D(3, 4)
+print(a + b)        # Vector2D(4, 6)
+print(a == b)       # False
+print(a[0])         # 1</code></pre>
+      </section>
+
+      <section id="class-static">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">6.5 Class Methods and Static Methods</h3>
+<pre><code>class Date:
+    def __init__(self, year, month, day):
+        self.year = year
+        self.month = month
+        self.day = day
+
+    @classmethod
+    def from_string(cls, date_str: str):
+        """Alternative constructor (factory method)."""
+        y, m, d = map(int, date_str.split("-"))
+        return cls(y, m, d)
+
+    @staticmethod
+    def is_valid(year, month, day) -> bool:
+        return 1 <= month <= 12 and 1 <= day <= 31
+
+d = Date.from_string("2024-03-15")
+print(Date.is_valid(2024, 13, 1))  # False</code></pre>
+      </section>
+
+      <section id="exercises" class="bg-white border border-slate-200 rounded-xl p-6 mt-8 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>Exercises</h2>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700">
+          <li>Create a <code>BankAccount</code> class with <code>deposit</code>, <code>withdraw</code> (with balance validation), and a <code>balance</code> property.</li>
+          <li>Implement a <code>Shape</code> hierarchy with <code>Circle</code>, <code>Rectangle</code>, and <code>Triangle</code>. Use polymorphism to compute total area of a list.</li>
+          <li>Overload <code>__add__</code>, <code>__sub__</code>, <code>__mul__</code>, and <code>__eq__</code> for a <code>Matrix</code> class.</li>
+          <li>Create a class with a <code>@classmethod</code> alternative constructor that builds from a JSON string.</li>
+          <li>Explain MRO for a diamond-inheritance scenario with four classes, predicting the output of <code>__mro__</code>.</li>
+        </ol>
+      </section>
+
+      
+

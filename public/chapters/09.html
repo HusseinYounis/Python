@@ -1,0 +1,139 @@
+﻿<div class="mb-6">
+        <span class="inline-block bg-primary-100 text-primary-700 text-xs font-bold px-3 py-1 rounded-full mb-3">CHAPTER 09</span>
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">File I/O and Serialization</h1>
+        <p class="text-slate-500">Reading/writing files, CSV, JSON, binary data, and pickle serialization.</p>
+      </div>
+
+      <section id="outcomes" class="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Learning Outcomes</h2>
+        <ul class="space-y-2 text-sm text-slate-700">
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Read and write text files using <code>open()</code> and context managers.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Process CSV files with the <code>csv</code> module.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Work with binary files and <code>struct</code> module.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Serialize Python objects with <code>pickle</code> and understand its caveats.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Handle encoding and large files efficiently.</li>
+        </ul>
+      </section>
+
+      <section id="text-files">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4">9.1 Reading and Writing Text Files</h3>
+        <p class="mb-3">Python file I/O is simpler than C++&#39;s <code>fstream</code> or Java&#39;s <code>BufferedReader</code>. The <code>with</code> statement guarantees the file is closed properly.</p>
+<pre><code># Writing
+with open("output.txt", "w", encoding="utf-8") as f:
+    f.write("Line 1\n")
+    f.write("Line 2\n")
+
+# Reading entire file
+with open("output.txt", "r", encoding="utf-8") as f:
+    content = f.read()
+
+# Reading line by line (memory efficient)
+with open("output.txt") as f:
+    for line in f:
+        print(line.strip())
+
+# Reading all lines into a list
+with open("output.txt") as f:
+    lines = f.readlines()</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">File Modes</h4>
+        <table>
+          <thead><tr><th>Mode</th><th>Description</th><th>C++ Equivalent</th></tr></thead>
+          <tbody>
+            <tr><td><code>"r"</code></td><td>Read (default)</td><td><code>ifstream</code></td></tr>
+            <tr><td><code>"w"</code></td><td>Write (truncate)</td><td><code>ofstream</code></td></tr>
+            <tr><td><code>"a"</code></td><td>Append</td><td><code>ofstream(file, ios::app)</code></td></tr>
+            <tr><td><code>"x"</code></td><td>Exclusive create</td><td>&#8212;</td></tr>
+            <tr><td><code>"b"</code></td><td>Binary mode</td><td><code>ios::binary</code></td></tr>
+            <tr><td><code>"+"</code></td><td>Read + Write</td><td><code>fstream</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="csv">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">9.2 CSV Files</h3>
+<pre><code>import csv
+
+# Writing CSV
+with open("students.csv", "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    writer.writerow(["Name", "GPA", "Major"])
+    writer.writerow(["Alice", 3.9, "CE"])
+    writer.writerow(["Bob", 3.5, "CS"])
+
+# Reading CSV
+with open("students.csv", encoding="utf-8") as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        print(f"{row['Name']}: {row['GPA']}")</code></pre>
+      </section>
+
+      <section id="binary">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">9.3 Binary Files and struct</h3>
+        <p class="mb-3">For engineers working with embedded systems or network protocols, binary I/O is essential. Python&#39;s <code>struct</code> module packs/unpacks C-compatible binary data.</p>
+<pre><code>import struct
+
+# Pack data: unsigned short, float, 10-char string
+header = struct.pack("&lt;Hf10s", 42, 3.14, b"HELLO")
+
+# Write binary
+with open("data.bin", "wb") as f:
+    f.write(header)
+
+# Read and unpack
+with open("data.bin", "rb") as f:
+    data = f.read()
+    id_val, pi_val, name = struct.unpack("&lt;Hf10s", data)
+    print(id_val, pi_val, name.decode().strip('\x00'))</code></pre>
+      </section>
+
+      <section id="pickle">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">9.4 Pickle Serialization</h3>
+        <p class="mb-3"><code>pickle</code> serializes any Python object to a byte stream. It is Python-specific (not interoperable with Java/C++).</p>
+<pre><code>import pickle
+
+data = {"model": "v2", "weights": [0.1, 0.5, 0.3], "accuracy": 0.95}
+
+# Serialize
+with open("model.pkl", "wb") as f:
+    pickle.dump(data, f)
+
+# Deserialize
+with open("model.pkl", "rb") as f:
+    loaded = pickle.load(f)
+print(loaded["accuracy"])  # 0.95</code></pre>
+        <div class="note"><strong>Security Warning:</strong> Never unpickle data from untrusted sources. Malicious pickle files can execute arbitrary code. Use JSON or protocol buffers for untrusted data exchange.</div>
+      </section>
+
+      <section id="large-files">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">9.5 Handling Large Files</h3>
+<pre><code># Process line by line (doesn't load entire file into memory)
+def count_words(filepath):
+    total = 0
+    with open(filepath, encoding="utf-8") as f:
+        for line in f:
+            total += len(line.split())
+    return total
+
+# Read in chunks
+def read_chunks(filepath, chunk_size=8192):
+    with open(filepath, "rb") as f:
+        while True:
+            chunk = f.read(chunk_size)
+            if not chunk:
+                break
+            yield chunk</code></pre>
+      </section>
+
+      <section id="exercises" class="bg-white border border-slate-200 rounded-xl p-6 mt-8 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>Exercises</h2>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700">
+          <li>Write a function that reads a text file and returns a dictionary of word frequencies, ignoring case.</li>
+          <li>Create a CSV grade book: read student records, compute average GPA, and write a summary CSV.</li>
+          <li>Use <code>struct</code> to pack/unpack a simple network packet header (version, type, length, payload).</li>
+          <li>Benchmark reading a large file: compare <code>f.read()</code>, <code>f.readlines()</code>, and line-by-line iteration for memory and speed.</li>
+          <li>Explain when to choose JSON vs pickle vs CSV for data persistence, with trade-offs for each.</li>
+        </ol>
+      </section>
+
+      
+

@@ -1,0 +1,132 @@
+﻿<div class="mb-6">
+        <span class="inline-block bg-primary-100 text-primary-700 text-xs font-bold px-3 py-1 rounded-full mb-3">CHAPTER 07</span>
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Modules, Packages, and the Standard Library</h1>
+        <p class="text-slate-500">Organizing code with modules, creating packages, pip, and essential stdlib modules.</p>
+      </div>
+
+      <section id="outcomes" class="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Learning Outcomes</h2>
+        <ul class="space-y-2 text-sm text-slate-700">
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Import modules using <code>import</code>, <code>from ... import</code>, and aliasing.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Create your own modules and packages with <code>__init__.py</code>.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use <code>pip</code> and virtual environments to manage dependencies.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Leverage key standard library modules: <code>os</code>, <code>sys</code>, <code>pathlib</code>, <code>json</code>, <code>math</code>, <code>datetime</code>.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Understand the <code>if __name__ == "__main__"</code> guard.</li>
+        </ul>
+      </section>
+
+      <section id="imports">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4">7.1 Importing Modules</h3>
+        <p class="mb-3">A module is simply a <code>.py</code> file. Python&#39;s import system is similar to Java&#39;s <code>import</code> but more flexible, and different from C++&#39;s <code>#include</code> which is textual substitution.</p>
+<pre><code>import math                        # Import entire module
+from math import sqrt, pi          # Import specific names
+from math import factorial as fact  # Alias
+import numpy as np                  # Common alias convention</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">The __name__ Guard</h4>
+<pre><code># utils.py
+def helper():
+    return "I help"
+
+if __name__ == "__main__":
+    # Only runs when executed directly, not when imported
+    print(helper())</code></pre>
+        <div class="note">This is analogous to Java&#39;s <code>public static void main</code> and C++&#39;s <code>int main()</code> convention, but more flexible since any module can be both importable and executable.</div>
+      </section>
+
+      <section id="packages">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">7.2 Creating Packages</h3>
+        <p class="mb-3">A package is a directory containing an <code>__init__.py</code> file (can be empty). Subpackages are nested directories.</p>
+<pre><code>myproject/
+    __init__.py
+    core/
+        __init__.py
+        engine.py
+        config.py
+    utils/
+        __init__.py
+        math_helpers.py
+        io_helpers.py</code></pre>
+<pre><code># Importing from packages
+from myproject.core.engine import Engine
+from myproject.utils import math_helpers
+
+# Relative imports (within the package)
+from .config import DEFAULT_PORT        # Same package
+from ..utils.io_helpers import read_csv # Parent package</code></pre>
+      </section>
+
+      <section id="pip">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">7.3 pip and Dependency Management</h3>
+<pre><code># Install a package
+pip install requests
+
+# Install specific version
+pip install numpy==1.24.0
+
+# Install from requirements file
+pip install -r requirements.txt
+
+# Export current environment
+pip freeze > requirements.txt
+
+# Uninstall
+pip uninstall requests</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">requirements.txt</h4>
+<pre><code>requests>=2.28.0
+numpy==1.24.0
+pandas>=2.0,<3.0
+flask~=2.3.0</code></pre>
+        <div class="note">Always use virtual environments (covered in Chapter 1) to isolate project dependencies. This is analogous to Maven/Gradle in Java.</div>
+      </section>
+
+      <section id="stdlib">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">7.4 Essential Standard Library Modules</h3>
+        <h4 class="font-semibold text-slate-800 mb-2">pathlib - File System Paths</h4>
+<pre><code>from pathlib import Path
+
+p = Path("data") / "input.csv"    # OS-independent path joining
+print(p.exists())                  # True/False
+print(p.suffix)                    # .csv
+print(p.stem)                      # input
+
+for f in Path(".").glob("**/*.py"):
+    print(f)</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">json - JSON Serialization</h4>
+<pre><code>import json
+
+data = {"name": "Alice", "scores": [95, 87, 92]}
+
+# Serialize to string
+json_str = json.dumps(data, indent=2)
+
+# Deserialize from string
+parsed = json.loads(json_str)
+
+# File I/O
+with open("data.json", "w") as f:
+    json.dump(data, f)
+with open("data.json") as f:
+    loaded = json.load(f)</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">datetime - Date and Time</h4>
+<pre><code>from datetime import datetime, timedelta
+
+now = datetime.now()
+print(now.strftime("%Y-%m-%d %H:%M"))
+
+deadline = now + timedelta(days=7)
+print(f"Due: {deadline:%B %d, %Y}")</code></pre>
+      </section>
+
+      <section id="exercises" class="bg-white border border-slate-200 rounded-xl p-6 mt-8 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>Exercises</h2>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700">
+          <li>Create a package <code>geometry</code> with modules <code>shapes.py</code> and <code>utils.py</code>. Import and use them from a main script.</li>
+          <li>Write a script using <code>pathlib</code> to count lines in all <code>.py</code> files recursively in a directory.</li>
+          <li>Serialize and deserialize a nested dictionary to/from JSON, preserving <code>datetime</code> objects using a custom encoder.</li>
+          <li>Use <code>argparse</code> to create a CLI tool that accepts a filename and a search pattern and prints matching lines.</li>
+          <li>Compare Python&#39;s import system with <code>#include</code> (C++) and <code>import</code> (Java). List three key differences.</li>
+        </ol>
+      </section>
+
+      
+

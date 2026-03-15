@@ -1,0 +1,143 @@
+﻿<div class="mb-6">
+        <span class="inline-block bg-primary-100 text-primary-700 text-xs font-bold px-3 py-1 rounded-full mb-3">CHAPTER 05</span>
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Data Structures</h1>
+        <p class="text-slate-500">Lists, tuples, dictionaries, sets, and their performance characteristics.</p>
+      </div>
+
+      <section id="outcomes" class="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Learning Outcomes</h2>
+        <ul class="space-y-2 text-sm text-slate-700">
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use lists and understand slicing, mutation, and copying.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Distinguish tuples from lists and use tuple unpacking.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Leverage dictionaries for fast key-value mapping.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use sets for membership testing, unions, and intersections.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Analyze time complexity of common operations on each structure.</li>
+        </ul>
+      </section>
+
+      <section id="lists">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4">5.1 Lists</h3>
+        <p class="mb-3">A list is a mutable, ordered sequence &#8212; similar to <code>std::vector&lt;T&gt;</code> in C++ or <code>ArrayList&lt;T&gt;</code> in Java, but heterogeneous (elements can differ in type).</p>
+<pre><code>nums = [10, 20, 30, 40, 50]
+
+# Indexing (0-based, same as C++/Java)
+print(nums[0])      # 10
+print(nums[-1])     # 50 (last element)
+
+# Slicing [start:stop:step]
+print(nums[1:4])    # [20, 30, 40]
+print(nums[::2])    # [10, 30, 50]
+print(nums[::-1])   # [50, 40, 30, 20, 10] reversed</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Common List Operations</h4>
+<pre><code>nums.append(60)           # Add to end - O(1)
+nums.insert(0, 5)         # Insert at index - O(n)
+nums.extend([70, 80])     # Append iterable
+val = nums.pop()          # Remove & return last - O(1)
+nums.remove(30)           # Remove first occurrence - O(n)
+nums.sort()               # In-place sort - O(n log n)
+sorted_copy = sorted(nums) # Return new sorted list</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Shallow vs Deep Copy</h4>
+<pre><code>import copy
+
+a = [[1, 2], [3, 4]]
+b = a.copy()              # Shallow copy
+c = copy.deepcopy(a)      # Deep copy
+
+a[0][0] = 99
+print(b[0][0])  # 99 - shared inner list
+print(c[0][0])  # 1  - independent copy</code></pre>
+      </section>
+
+      <section id="tuples">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">5.2 Tuples</h3>
+        <p class="mb-3">Tuples are immutable sequences. Once created, elements cannot be changed. They are hashable if all elements are hashable and can be used as dictionary keys.</p>
+<pre><code>point = (3.0, 4.0)
+x, y = point              # Tuple unpacking
+
+# Swap without temp variable
+a, b = 1, 2
+a, b = b, a                # a=2, b=1
+
+# Named tuples for structured data
+from collections import namedtuple
+Student = namedtuple("Student", ["name", "gpa", "major"])
+s = Student("Alice", 3.9, "CE")
+print(s.name, s.gpa)       # Alice 3.9</code></pre>
+      </section>
+
+      <section id="dictionaries">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">5.3 Dictionaries</h3>
+        <p class="mb-3">Dictionaries are hash maps &#8212; equivalent to <code>std::unordered_map</code> in C++ or <code>HashMap</code> in Java. Average O(1) lookup, insertion, and deletion.</p>
+<pre><code>student = {
+    "name": "Alice",
+    "gpa": 3.9,
+    "courses": ["CS101", "MATH201"]
+}
+
+# Access
+print(student["name"])              # Alice
+print(student.get("age", "N/A"))    # N/A (safe access)
+
+# Mutation
+student["age"] = 21                 # Add/update
+del student["gpa"]                  # Remove key
+
+# Iteration
+for key, value in student.items():
+    print(f"{key}: {value}")</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">defaultdict and Counter</h4>
+<pre><code>from collections import defaultdict, Counter
+
+# defaultdict auto-creates missing keys
+word_count = defaultdict(int)
+for word in "the cat sat on the mat".split():
+    word_count[word] += 1
+
+# Counter - specialized frequency counter
+freq = Counter("abracadabra")
+print(freq.most_common(3))  # [('a', 5), ('b', 2), ('r', 2)]</code></pre>
+      </section>
+
+      <section id="sets">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">5.4 Sets</h3>
+        <p class="mb-3">Sets are unordered collections of unique, hashable elements &#8212; similar to <code>std::unordered_set</code> in C++ or <code>HashSet</code> in Java.</p>
+<pre><code>a = {1, 2, 3, 4, 5}
+b = {4, 5, 6, 7, 8}
+
+print(a | b)    # Union:        {1, 2, 3, 4, 5, 6, 7, 8}
+print(a & b)    # Intersection: {4, 5}
+print(a - b)    # Difference:   {1, 2, 3}
+print(a ^ b)    # Symmetric:    {1, 2, 3, 6, 7, 8}
+
+# Fast membership test - O(1)
+print(3 in a)   # True</code></pre>
+      </section>
+
+      <section id="complexity">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">5.5 Time Complexity Summary</h3>
+        <table>
+          <thead><tr><th>Operation</th><th>list</th><th>dict</th><th>set</th></tr></thead>
+          <tbody>
+            <tr><td>Index / Key Lookup</td><td>O(1)</td><td>O(1) avg</td><td>&#8212;</td></tr>
+            <tr><td>Search (<code>in</code>)</td><td>O(n)</td><td>O(1) avg</td><td>O(1) avg</td></tr>
+            <tr><td>Append / Insert End</td><td>O(1)</td><td>O(1) avg</td><td>O(1) avg</td></tr>
+            <tr><td>Insert at Index</td><td>O(n)</td><td>&#8212;</td><td>&#8212;</td></tr>
+            <tr><td>Delete</td><td>O(n)</td><td>O(1) avg</td><td>O(1) avg</td></tr>
+            <tr><td>Sort</td><td>O(n log n)</td><td>&#8212;</td><td>&#8212;</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="exercises" class="bg-white border border-slate-200 rounded-xl p-6 mt-8 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>Exercises</h2>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700">
+          <li>Implement a function that rotates a list by <code>k</code> positions using slicing.</li>
+          <li>Build a frequency counter for characters in a string without using <code>Counter</code>.</li>
+          <li>Given two lists, find elements present in both (intersection) using sets. Compare the time complexity to a nested-loop approach.</li>
+          <li>Represent a sparse matrix as a dictionary of <code>(row, col): value</code> and implement addition of two sparse matrices.</li>
+          <li>Demonstrate the difference between shallow and deep copy with a list of lists, explaining which scenario requires each.</li>
+        </ol>
+      </section>
+
+      
+

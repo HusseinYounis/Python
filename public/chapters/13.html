@@ -1,0 +1,126 @@
+﻿<div class="mb-6">
+        <span class="inline-block bg-primary-100 text-primary-700 text-xs font-bold px-3 py-1 rounded-full mb-3">CHAPTER 13</span>
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Data Analysis with Pandas</h1>
+        <p class="text-slate-500">DataFrames, Series, data cleaning, grouping, merging, and analysis workflows.</p>
+      </div>
+
+      <section id="outcomes" class="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Learning Outcomes</h2>
+        <ul class="space-y-2 text-sm text-slate-700">
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Create DataFrames from dictionaries, CSV files, and NumPy arrays.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Select, filter, and transform data using <code>loc</code>/<code>iloc</code> and boolean indexing.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Handle missing data with <code>fillna</code>, <code>dropna</code>, and interpolation.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Group, aggregate, and pivot data for analysis.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Merge and join DataFrames (SQL-like operations).</li>
+        </ul>
+      </section>
+
+      <section id="dataframes">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4">13.1 Series and DataFrames</h3>
+        <p class="mb-3">A <code>Series</code> is a labeled 1D array. A <code>DataFrame</code> is a labeled 2D table &#8212; think of it as a dictionary of Series, or a spreadsheet/SQL table in memory.</p>
+<pre><code>import pandas as pd
+import numpy as np
+
+# Create DataFrame from dictionary
+df = pd.DataFrame({
+    "name": ["Alice", "Bob", "Charlie", "Diana"],
+    "major": ["CE", "CS", "CE", "EE"],
+    "gpa": [3.9, 3.5, 3.7, 3.8],
+    "credits": [90, 75, 85, 95]
+})
+
+print(df)
+print(df.shape)      # (4, 4)
+print(df.dtypes)     # name: object, major: object, gpa: float64, credits: int64
+print(df.describe()) # Statistical summary</code></pre>
+      </section>
+
+      <section id="selection">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">13.2 Selection and Filtering</h3>
+<pre><code># Column access
+print(df["name"])            # Series
+print(df[["name", "gpa"]])   # DataFrame
+
+# Row selection
+print(df.loc[0])              # By label (index)
+print(df.iloc[0:2])           # By position
+
+# Boolean filtering
+ce_students = df[df["major"] == "CE"]
+honors = df[(df["gpa"] >= 3.7) & (df["credits"] >= 80)]
+
+# Query syntax (SQL-like)
+result = df.query("gpa > 3.6 and major == 'CE'")</code></pre>
+      </section>
+
+      <section id="cleaning">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">13.3 Data Cleaning</h3>
+<pre><code># Handling missing data
+df_dirty = pd.DataFrame({
+    "sensor": ["A", "B", "C", "D"],
+    "temp": [22.5, np.nan, 24.1, np.nan],
+    "humidity": [45, 50, np.nan, 55]
+})
+
+print(df_dirty.isnull().sum())  # Count missing per column
+
+# Fill missing values
+df_filled = df_dirty.fillna({"temp": df_dirty["temp"].mean()})
+
+# Drop rows with any missing
+df_clean = df_dirty.dropna()
+
+# String cleaning
+df["name"] = df["name"].str.strip().str.lower()</code></pre>
+      </section>
+
+      <section id="grouping">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">13.4 Grouping and Aggregation</h3>
+<pre><code># Group by major
+grouped = df.groupby("major")
+
+# Aggregation
+print(grouped["gpa"].mean())
+print(grouped.agg({
+    "gpa": ["mean", "max"],
+    "credits": "sum"
+}))
+
+# Pivot table
+pivot = df.pivot_table(
+    values="gpa",
+    index="major",
+    aggfunc=["mean", "count"]
+)</code></pre>
+      </section>
+
+      <section id="merging">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">13.5 Merging and Joining</h3>
+<pre><code># Two DataFrames with a common key
+courses = pd.DataFrame({
+    "major": ["CE", "CS", "EE"],
+    "dept": ["Computer Engineering", "Computer Science", "Electrical Engineering"]
+})
+
+# Merge (SQL JOIN)
+merged = df.merge(courses, on="major", how="left")
+print(merged)
+
+# Concatenate vertically
+df2 = pd.DataFrame({"name": ["Eve"], "major": ["CS"], "gpa": [3.6], "credits": [60]})
+combined = pd.concat([df, df2], ignore_index=True)</code></pre>
+      </section>
+
+      <section id="exercises" class="bg-white border border-slate-200 rounded-xl p-6 mt-8 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>Exercises</h2>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700">
+          <li>Read a CSV file of sensor readings, clean missing values, and compute rolling averages.</li>
+          <li>Filter a DataFrame to find outliers using z-score thresholds and replace them with the column median.</li>
+          <li>Use <code>groupby</code> to compute per-department statistics and create a summary report.</li>
+          <li>Merge two DataFrames (students and enrollment) using inner, left, and outer joins. Explain the result differences.</li>
+          <li>Create a pivot table showing average GPA by major and year, then export it to CSV and Excel.</li>
+        </ol>
+      </section>
+
+      
+

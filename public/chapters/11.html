@@ -1,0 +1,139 @@
+﻿<div class="mb-6">
+        <span class="inline-block bg-primary-100 text-primary-700 text-xs font-bold px-3 py-1 rounded-full mb-3">CHAPTER 11</span>
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Testing and Debugging</h1>
+        <p class="text-slate-500">Unit testing with pytest, assertions, mocking, and debugging techniques.</p>
+      </div>
+
+      <section id="outcomes" class="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Learning Outcomes</h2>
+        <ul class="space-y-2 text-sm text-slate-700">
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Write unit tests with <code>pytest</code> and use assertions effectively.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use fixtures for test setup and teardown.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Apply mocking to isolate units under test.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Measure code coverage and interpret reports.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Debug with <code>pdb</code>, <code>breakpoint()</code>, and IDE debuggers.</li>
+        </ul>
+      </section>
+
+      <section id="pytest-basics">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4">11.1 pytest Basics</h3>
+        <p class="mb-3"><code>pytest</code> is the de facto testing framework for Python. Unlike Java&#39;s JUnit, test functions don&#39;t need to be inside a class, and plain <code>assert</code> statements are used instead of special assertion methods.</p>
+<pre><code># test_math_utils.py
+def add(a, b):
+    return a + b
+
+def test_add_integers():
+    assert add(2, 3) == 5
+
+def test_add_floats():
+    assert abs(add(0.1, 0.2) - 0.3) < 1e-9
+
+def test_add_strings():
+    assert add("hello ", "world") == "hello world"</code></pre>
+<pre><code># Run tests
+# $ pytest test_math_utils.py -v
+# test_math_utils.py::test_add_integers PASSED
+# test_math_utils.py::test_add_floats PASSED
+# test_math_utils.py::test_add_strings PASSED</code></pre>
+      </section>
+
+      <section id="fixtures">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">11.2 Fixtures</h3>
+        <p class="mb-3">Fixtures provide reusable test setup &#8212; similar to <code>@Before</code>/<code>@After</code> in JUnit or <code>SetUp</code>/<code>TearDown</code> in Google Test.</p>
+<pre><code>import pytest
+
+@pytest.fixture
+def sample_data():
+    """Provide test data."""
+    return {"users": ["Alice", "Bob"], "count": 2}
+
+@pytest.fixture
+def temp_file(tmp_path):
+    """Create a temporary test file."""
+    f = tmp_path / "test.txt"
+    f.write_text("hello\nworld\n")
+    return f
+
+def test_user_count(sample_data):
+    assert sample_data["count"] == len(sample_data["users"])
+
+def test_file_lines(temp_file):
+    lines = temp_file.read_text().strip().split("\n")
+    assert len(lines) == 2</code></pre>
+      </section>
+
+      <section id="parametrize">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">11.3 Parametrized Tests</h3>
+<pre><code>@pytest.mark.parametrize("input_val,expected", [
+    (1, 1),
+    (2, 4),
+    (3, 9),
+    (0, 0),
+    (-2, 4),
+])
+def test_square(input_val, expected):
+    assert input_val ** 2 == expected</code></pre>
+      </section>
+
+      <section id="mocking">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">11.4 Mocking</h3>
+<pre><code>from unittest.mock import patch, MagicMock
+
+def fetch_data(url):
+    import requests
+    response = requests.get(url)
+    return response.json()
+
+@patch("requests.get")
+def test_fetch_data(mock_get):
+    # Configure mock
+    mock_response = MagicMock()
+    mock_response.json.return_value = {"status": "ok"}
+    mock_get.return_value = mock_response
+
+    # Test
+    result = fetch_data("https://api.example.com/data")
+    assert result == {"status": "ok"}
+    mock_get.assert_called_once_with("https://api.example.com/data")</code></pre>
+      </section>
+
+      <section id="debugging">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">11.5 Debugging</h3>
+<pre><code># Built-in debugger (Python 3.7+)
+def buggy_function(data):
+    result = []
+    for item in data:
+        breakpoint()  # Drops into pdb here
+        result.append(item * 2)
+    return result
+
+# PDB commands:
+# n (next), s (step into), c (continue)
+# p variable (print), l (list code), q (quit)</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Logging vs Print</h4>
+<pre><code>import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+def process(data):
+    logger.debug(f"Processing {len(data)} items")
+    logger.info("Starting computation")
+    logger.warning("Memory usage high")
+    logger.error("Failed to process item")</code></pre>
+        <div class="note">Use <code>logging</code> instead of <code>print()</code> for debugging in production code. It supports levels, formatting, and can be redirected to files without code changes.</div>
+      </section>
+
+      <section id="exercises" class="bg-white border border-slate-200 rounded-xl p-6 mt-8 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>Exercises</h2>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700">
+          <li>Write pytest tests for a <code>Stack</code> class covering push, pop, peek, and empty-stack scenarios.</li>
+          <li>Use <code>@pytest.mark.parametrize</code> to test an <code>is_palindrome()</code> function with at least 8 test cases.</li>
+          <li>Mock a database connection to test a function that queries and formats user records.</li>
+          <li>Set up <code>pytest-cov</code> and achieve at least 90% coverage on a small module.</li>
+          <li>Deliberately introduce a bug, use <code>pdb</code> to trace execution, and document the debugging process.</li>
+        </ol>
+      </section>
+
+      
+

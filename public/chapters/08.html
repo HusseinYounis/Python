@@ -1,0 +1,154 @@
+﻿<div class="mb-6">
+        <span class="inline-block bg-primary-100 text-primary-700 text-xs font-bold px-3 py-1 rounded-full mb-3">CHAPTER 08</span>
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Error Handling and Exceptions</h1>
+        <p class="text-slate-500">try/except, custom exceptions, context managers, and EAFP vs LBYL.</p>
+      </div>
+
+      <section id="outcomes" class="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Learning Outcomes</h2>
+        <ul class="space-y-2 text-sm text-slate-700">
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Handle exceptions with <code>try</code>, <code>except</code>, <code>else</code>, and <code>finally</code>.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Navigate the exception hierarchy and catch specific exceptions.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Define and raise custom exception classes.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use context managers (<code>with</code> statement) for resource management.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Contrast EAFP (Easier to Ask Forgiveness) vs LBYL (Look Before You Leap).</li>
+        </ul>
+      </section>
+
+      <section id="try-except">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4">8.1 try / except / else / finally</h3>
+        <p class="mb-3">Python&#39;s exception handling is similar to Java&#39;s try/catch/finally. C++ uses try/catch without an <code>else</code> clause.</p>
+<pre><code>try:
+    value = int(input("Enter a number: "))
+    result = 100 / value
+except ValueError:
+    print("Not a valid integer")
+except ZeroDivisionError:
+    print("Cannot divide by zero")
+else:
+    # Runs only if NO exception occurred
+    print(f"Result: {result}")
+finally:
+    # Always runs (cleanup)
+    print("Done")</code></pre>
+        <div class="note">The <code>else</code> clause is unique to Python. It is preferred over putting code in the <code>try</code> block when that code should only run if no exception was raised.</div>
+      </section>
+
+      <section id="hierarchy">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">8.2 Exception Hierarchy</h3>
+        <p class="mb-3">All exceptions inherit from <code>BaseException</code>. Most user-catchable exceptions inherit from <code>Exception</code>.</p>
+<pre><code>BaseException
+ +-- SystemExit
+ +-- KeyboardInterrupt
+ +-- Exception
+      +-- ValueError
+      +-- TypeError
+      +-- KeyError
+      +-- IndexError
+      +-- FileNotFoundError
+      +-- IOError
+      +-- AttributeError
+      +-- RuntimeError
+      +-- StopIteration</code></pre>
+        <div class="note">Never catch bare <code>except:</code> or <code>except BaseException</code> in production code &#8212; it will silently swallow <code>KeyboardInterrupt</code> and <code>SystemExit</code>.</div>
+      </section>
+
+      <section id="custom-exceptions">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">8.3 Custom Exceptions</h3>
+<pre><code>class InsufficientFundsError(Exception):
+    """Raised when a withdrawal exceeds the balance."""
+    def __init__(self, balance, amount):
+        self.balance = balance
+        self.amount = amount
+        super().__init__(
+            f"Cannot withdraw ${amount:.2f}; "
+            f"balance is ${balance:.2f}"
+        )
+
+class BankAccount:
+    def __init__(self, balance=0):
+        self._balance = balance
+
+    def withdraw(self, amount):
+        if amount > self._balance:
+            raise InsufficientFundsError(self._balance, amount)
+        self._balance -= amount
+        return self._balance
+
+# Usage
+try:
+    acct = BankAccount(100)
+    acct.withdraw(150)
+except InsufficientFundsError as e:
+    print(e)  # Cannot withdraw $150.00; balance is $100.00</code></pre>
+      </section>
+
+      <section id="context-managers">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">8.4 Context Managers (with Statement)</h3>
+        <p class="mb-3">The <code>with</code> statement ensures resources are properly released, similar to Java&#39;s try-with-resources and C++&#39;s RAII pattern.</p>
+<pre><code># File handling - guaranteed close
+with open("data.txt", "r") as f:
+    content = f.read()
+# f is automatically closed here
+
+# Creating custom context managers
+from contextlib import contextmanager
+
+@contextmanager
+def timer(label):
+    import time
+    start = time.perf_counter()
+    yield
+    elapsed = time.perf_counter() - start
+    print(f"{label}: {elapsed:.4f}s")
+
+with timer("Sort"):
+    sorted(range(1_000_000, 0, -1))</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Class-Based Context Manager</h4>
+<pre><code>class DatabaseConnection:
+    def __enter__(self):
+        self.conn = connect_to_db()
+        return self.conn
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.conn.close()
+        return False  # Don't suppress exceptions
+
+with DatabaseConnection() as conn:
+    conn.execute("SELECT * FROM users")</code></pre>
+      </section>
+
+      <section id="eafp-lbyl">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">8.5 EAFP vs LBYL</h3>
+        <div class="comparison">
+          <div>
+            <h4 class="font-semibold text-slate-800 mb-2">LBYL (C++/Java style)</h4>
+<pre><code>if key in dictionary:
+    value = dictionary[key]
+else:
+    value = default</code></pre>
+          </div>
+          <div>
+            <h4 class="font-semibold text-slate-800 mb-2">EAFP (Pythonic)</h4>
+<pre><code>try:
+    value = dictionary[key]
+except KeyError:
+    value = default</code></pre>
+          </div>
+        </div>
+        <p class="mt-3 text-sm text-slate-600">Python idiom prefers EAFP. Even simpler: <code>value = dictionary.get(key, default)</code></p>
+      </section>
+
+      <section id="exercises" class="bg-white border border-slate-200 rounded-xl p-6 mt-8 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>Exercises</h2>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700">
+          <li>Write a function that reads a file and handles <code>FileNotFoundError</code>, <code>PermissionError</code>, and <code>UnicodeDecodeError</code> with specific messages.</li>
+          <li>Create a custom <code>ValidationError</code> hierarchy with <code>RangeError</code> and <code>FormatError</code> subclasses.</li>
+          <li>Implement a context manager <code>TempFile</code> that creates a temporary file on enter and deletes it on exit.</li>
+          <li>Rewrite a C++ LBYL pattern (null-check before use) into Pythonic EAFP style.</li>
+          <li>Demonstrate exception chaining with <code>raise ... from ...</code> to preserve the original traceback context.</li>
+        </ol>
+      </section>
+
+      
+

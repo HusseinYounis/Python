@@ -1,0 +1,117 @@
+﻿<div class="mb-6">
+        <span class="inline-block bg-primary-100 text-primary-700 text-xs font-bold px-3 py-1 rounded-full mb-3">CHAPTER 01</span>
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Orientation and Execution Model</h1>
+        <p class="text-slate-500">Interpreted vs. compiled workflows, the Python runtime, virtual environments, and development setup.</p>
+      </div>
+
+      <section id="outcomes" class="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2">
+          <svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          Learning Outcomes
+        </h2>
+        <ul class="space-y-2 text-sm text-slate-700">
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Contrast Python's interpreted execution model with the compiled model of C++ and the JVM-based model of Java.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Run Python code interactively and as standalone scripts from the command line.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Create, activate, and manage virtual environments for dependency isolation.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Install third-party packages using <code>pip</code> and understand requirement files.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Identify the main components of a Python development workflow.</li>
+        </ul>
+      </section>
+
+      <section id="why-python">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4">1.1 Why Python?</h3>
+        <p class="mb-3">Python is a high-level, general-purpose programming language that emphasizes readability, conciseness, and developer productivity. It was created by Guido van Rossum and first released in 1991. Today it is among the most widely used languages in industry, powering applications in web development, data science, automation, embedded systems, and scientific computing.</p>
+        <p>For students with a C++ and Java background, Python represents a shift in design philosophy. Where C++ prioritizes low-level control and performance, and Java emphasizes type safety and portability through the JVM, Python optimizes for rapid iteration and expressive syntax. The trade-off is reduced raw execution speed, which is acceptable for most engineering workflows because the bottleneck is typically I/O, not computation.</p>
+      </section>
+
+      <section id="interpreted-vs-compiled">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">1.2 Interpreted vs. Compiled Execution</h3>
+        <p class="mb-3">In C++, source code is compiled to native machine instructions by a compiler such as <code>g++</code> or <code>clang++</code>. In Java, source is compiled to bytecode and then executed by the Java Virtual Machine (JVM). Python takes a different approach: the CPython interpreter translates source code to bytecode at runtime and immediately executes it on a virtual machine embedded in the interpreter itself.</p>
+        <div class="comparison">
+          <div><h4>C++ Workflow</h4><p>Source &rarr; Compiler &rarr; Machine code &rarr; Execute</p></div>
+          <div><h4>Java Workflow</h4><p>Source &rarr; javac &rarr; Bytecode (.class) &rarr; JVM</p></div>
+        </div>
+        <div class="comparison">
+          <div><h4>Python (CPython) Workflow</h4><p>Source &rarr; Interpreter &rarr; Bytecode (in memory / .pyc) &rarr; CPython VM</p></div>
+          <div><h4>Key Consequence</h4><p>No separate compilation step. Errors are detected at runtime, not at compile time.</p></div>
+        </div>
+        <div class="note">Because Python is dynamically typed and interpreted, type errors that C++ or Java would catch at compile time only surface when the offending line is executed. This makes thorough testing especially important.</div>
+      </section>
+
+      <section id="running-python">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">1.3 Running Python Code</h3>
+        <p class="mb-3">Python code can be executed in two modes: interactive (REPL) and script-based.</p>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Interactive Mode (REPL)</h4>
+        <p class="mb-3">The Read-Eval-Print Loop is launched by typing <code>python</code> in a terminal. Each expression is evaluated immediately, making it ideal for exploration and debugging.</p>
+<pre><code>>>> 2 + 3
+5
+>>> print("Hello from the REPL")
+Hello from the REPL</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Script Mode</h4>
+        <p class="mb-3">A Python file (conventionally with a <code>.py</code> extension) is executed by passing it to the interpreter.</p>
+<pre><code># main.py
+import sys
+
+print(f"Python version: {sys.version}")
+print("Script execution complete.")</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">The <code>if __name__ == "__main__"</code> Guard</h4>
+        <p class="mb-3">When a module is run directly, Python sets its <code>__name__</code> attribute to <code>"__main__"</code>. This guard prevents code from executing when the file is imported as a module.</p>
+<pre><code>def greet(name):
+    return f"Hello, {name}"
+
+if __name__ == "__main__":
+    print(greet("Engineer"))</code></pre>
+      </section>
+
+      <section id="virtual-environments">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">1.4 Virtual Environments and Package Management</h3>
+        <p class="mb-3">A virtual environment is an isolated directory tree that contains a specific Python interpreter and a set of installed packages. This prevents version conflicts between projects.</p>
+<pre><code># Create a virtual environment
+python -m venv myenv
+
+# Activate (Windows)
+myenv\Scripts\activate
+
+# Activate (Linux / macOS)
+source myenv/bin/activate
+
+# Install packages
+pip install requests numpy
+
+# Freeze current dependencies
+pip freeze > requirements.txt
+
+# Reproduce environment elsewhere
+pip install -r requirements.txt</code></pre>
+        <div class="note">Always work inside a virtual environment to keep your system Python installation clean and to ensure reproducibility of your projects.</div>
+      </section>
+
+      <section id="workflow">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">1.5 Development Workflow Overview</h3>
+        <p class="mb-3">A typical Python development cycle involves the following steps:</p>
+        <ol class="list-decimal list-inside space-y-1 text-slate-700 mb-3">
+          <li><strong>Explore</strong> &#8212; Use the REPL to test small ideas and examine APIs.</li>
+          <li><strong>Write</strong> &#8212; Organize code into modules and packages within a project directory.</li>
+          <li><strong>Test</strong> &#8212; Run unit tests with <code>pytest</code> or <code>unittest</code> after each change.</li>
+          <li><strong>Debug</strong> &#8212; Use <code>print()</code>, the built-in <code>pdb</code> debugger, or IDE breakpoints.</li>
+          <li><strong>Ship</strong> &#8212; Package the project and manage dependencies with <code>pip</code> and <code>pyproject.toml</code>.</li>
+        </ol>
+        <p>This tight feedback loop is one of Python's greatest strengths. Unlike C++ or Java, there is no waiting for a compilation step, which significantly accelerates prototyping and iterative development.</p>
+      </section>
+
+      <section id="exercises" class="bg-white border border-slate-200 rounded-xl p-6 mt-8 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2">
+          <svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+          Exercises
+        </h2>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700">
+          <li>List three differences between the Python interpreter and the Java Virtual Machine. Discuss how each difference affects the development workflow.</li>
+          <li>Create a virtual environment, activate it, install the <code>requests</code> library, and describe the resulting directory structure.</li>
+          <li>Write a Python script that prints the current Python version, the platform name, and the path to the running interpreter.</li>
+          <li>Explain, in your own words, why Python favors readability over explicit type declarations and what trade-offs this introduces.</li>
+          <li>Describe a development workflow that combines the REPL for exploration with script files for production code. Give a concrete example.</li>
+        </ol>
+      </section>
+
+      
+

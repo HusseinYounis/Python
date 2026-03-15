@@ -1,0 +1,127 @@
+﻿<div class="mb-6">
+        <span class="inline-block bg-primary-100 text-primary-700 text-xs font-bold px-3 py-1 rounded-full mb-3">CHAPTER 03</span>
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Control Flow</h1>
+        <p class="text-slate-500">Conditionals, loops, comprehensions, and Pythonic iteration patterns.</p>
+      </div>
+
+      <section id="outcomes" class="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Learning Outcomes</h2>
+        <ul class="space-y-2 text-sm text-slate-700">
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Write conditional logic using <code>if</code>, <code>elif</code>, and <code>else</code>.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use <code>for</code> and <code>while</code> loops with <code>break</code>, <code>continue</code>, and <code>else</code>.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Apply the <code>match</code> statement (Python 3.10+) as an alternative to switch-case.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Construct list, dict, and set comprehensions.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use <code>enumerate()</code>, <code>zip()</code>, and <code>range()</code> for Pythonic iteration.</li>
+        </ul>
+      </section>
+
+      <section id="conditionals">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4">3.1 Conditional Statements</h3>
+        <p class="mb-3">Python uses <code>if</code> / <code>elif</code> / <code>else</code> with indentation-defined blocks. There are no braces or parentheses required around the condition.</p>
+<pre><code>temperature = 35
+
+if temperature > 30:
+    print("Hot")
+elif temperature > 20:
+    print("Warm")
+else:
+    print("Cool")</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Ternary Expression</h4>
+<pre><code># C++/Java:  result = (x > 0) ? "positive" : "non-positive";
+result = "positive" if x > 0 else "non-positive"</code></pre>
+        <div class="note">Python has no <code>switch</code> statement before 3.10. For older code, use a chain of <code>elif</code> or a dictionary dispatch pattern.</div>
+      </section>
+
+      <section id="loops">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">3.2 Loops</h3>
+        <h4 class="font-semibold text-slate-800 mb-2">for Loop</h4>
+        <p class="mb-3">Python's <code>for</code> iterates over any <em>iterable</em> &#8212; lists, strings, ranges, files, etc. It does not use an index counter by default like C-style for loops.</p>
+<pre><code>languages = ["Python", "C++", "Java"]
+for lang in languages:
+    print(lang)
+
+# Index-based iteration (if you need the index)
+for i, lang in enumerate(languages):
+    print(f"{i}: {lang}")</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">while Loop</h4>
+<pre><code>count = 5
+while count > 0:
+    print(count)
+    count -= 1   # No -- operator in Python</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">break, continue, and Loop else</h4>
+<pre><code>for n in range(2, 20):
+    for d in range(2, n):
+        if n % d == 0:
+            break
+    else:
+        # Executes when the loop completes WITHOUT break
+        print(f"{n} is prime")</code></pre>
+        <div class="note">The <code>else</code> clause on loops is unique to Python and has no equivalent in C++/Java. It runs only when the loop terminates normally (not via <code>break</code>).</div>
+      </section>
+
+      <section id="match">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">3.3 Structural Pattern Matching</h3>
+        <p class="mb-3">Python 3.10 introduced <code>match</code>/<code>case</code>, which is more powerful than C++/Java <code>switch</code> &#8212; it supports destructuring, guards, and wildcard patterns.</p>
+<pre><code>def describe_http(status):
+    match status:
+        case 200:
+            return "OK"
+        case 404:
+            return "Not Found"
+        case 500:
+            return "Server Error"
+        case _:
+            return f"Unknown: {status}"</code></pre>
+      </section>
+
+      <section id="comprehensions">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">3.4 Comprehensions</h3>
+        <p class="mb-3">Comprehensions provide a concise way to build collections from iterables. They replace many common for-loop patterns.</p>
+<pre><code># List comprehension
+squares = [x ** 2 for x in range(10)]
+
+# With filter
+evens = [x for x in range(20) if x % 2 == 0]
+
+# Dict comprehension
+word_lengths = {w: len(w) for w in ["hello", "world"]}
+
+# Set comprehension
+unique_lengths = {len(w) for w in ["cat", "dog", "ant"]}</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Nested Comprehensions</h4>
+<pre><code># Flatten a 2D matrix
+matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+flat = [val for row in matrix for val in row]
+# [1, 2, 3, 4, 5, 6, 7, 8, 9]</code></pre>
+      </section>
+
+      <section id="iteration-tools">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">3.5 Iteration Utilities</h3>
+<pre><code># zip - iterate over parallel sequences
+names = ["Alice", "Bob"]
+scores = [95, 87]
+for name, score in zip(names, scores):
+    print(f"{name}: {score}")
+
+# range with step
+for i in range(0, 20, 3):
+    print(i)   # 0, 3, 6, 9, 12, 15, 18
+
+# reversed and sorted
+for item in reversed(sorted([3, 1, 4, 1, 5])):
+    print(item)</code></pre>
+      </section>
+
+      <section id="exercises" class="bg-white border border-slate-200 rounded-xl p-6 mt-8 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>Exercises</h2>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700">
+          <li>Rewrite the C++ FizzBuzz program in Python using a <code>for</code> loop and <code>if</code>/<code>elif</code>/<code>else</code>.</li>
+          <li>Use a list comprehension to generate all Pythagorean triples <code>(a, b, c)</code> where <code>a, b, c &lt; 30</code>.</li>
+          <li>Write a <code>match</code>/<code>case</code> statement that classifies a character as vowel, consonant, digit, or other.</li>
+          <li>Demonstrate the loop <code>else</code> clause to check whether a number is prime.</li>
+          <li>Rewrite a nested C-style loop using <code>zip</code> and <code>enumerate</code> to iterate two parallel arrays with indices.</li>
+        </ol>
+      </section>
+
+      
+

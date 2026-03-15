@@ -1,0 +1,125 @@
+﻿<div class="mb-6">
+        <span class="inline-block bg-primary-100 text-primary-700 text-xs font-bold px-3 py-1 rounded-full mb-3">CHAPTER 02</span>
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Variables, Types, and Expressions</h1>
+        <p class="text-slate-500">Dynamic typing, name binding, scalar types, operators, and type coercion.</p>
+      </div>
+
+      <section id="outcomes" class="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Learning Outcomes</h2>
+        <ul class="space-y-2 text-sm text-slate-700">
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Identify Python's core scalar types and describe their behavior.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Explain the difference between dynamic typing (Python) and static typing (C++/Java).</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Distinguish between name binding and variable declaration.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use arithmetic, comparison, boolean, and bitwise operators.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Apply type conversion and understand implicit coercion rules.</li>
+        </ul>
+      </section>
+
+      <section id="names-objects">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4">2.1 Names and Objects</h3>
+        <p class="mb-3">In C++ and Java, a variable is a named region of memory with a declared type. In Python, a variable is simply a <em>name</em> that references an <em>object</em> in memory. The type belongs to the object, not the name. This mechanism is called <strong>name binding</strong>.</p>
+<pre><code>x = 42          # x is bound to an int object
+x = "hello"     # x is now bound to a str object - no error</code></pre>
+        <p class="mb-3">There is no declaration step. The assignment <code>=</code> operator creates the binding. If the name already exists in the current scope, it is rebound to the new object.</p>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Identity, Type, and Value</h4>
+        <p class="mb-3">Every object in Python has three properties:</p>
+        <ul class="list-disc list-inside space-y-1 text-slate-700 mb-3">
+          <li><strong>Identity</strong> &#8212; a unique integer returned by <code>id(obj)</code>.</li>
+          <li><strong>Type</strong> &#8212; returned by <code>type(obj)</code>, determining supported operations.</li>
+          <li><strong>Value</strong> &#8212; the data the object contains.</li>
+        </ul>
+<pre><code>a = 256
+b = 256
+print(a is b)   # True - CPython caches small integers [-5, 256]
+
+c = 1000
+d = 1000
+print(c is d)   # May be False - depends on implementation</code></pre>
+        <div class="note">Use <code>==</code> to compare values and <code>is</code> to compare identity (same object in memory). The <code>is</code> operator is analogous to comparing pointer addresses in C++.</div>
+      </section>
+
+      <section id="numeric-types">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">2.2 Numeric Types</h3>
+        <p class="mb-3">Python provides three built-in numeric types:</p>
+        <ul class="list-disc list-inside space-y-1 text-slate-700 mb-3">
+          <li><code>int</code> &#8212; arbitrary-precision integers. Unlike C++ <code>int</code> (32 bits) or Java <code>int</code> (32 bits), Python integers grow as large as memory allows.</li>
+          <li><code>float</code> &#8212; IEEE 754 double-precision floating-point, equivalent to <code>double</code> in C++/Java.</li>
+          <li><code>complex</code> &#8212; complex numbers with real and imaginary parts (e.g., <code>3 + 4j</code>).</li>
+        </ul>
+<pre><code>big = 2 ** 200                  # Arbitrary precision - no overflow
+pi = 3.141592653589793           # float
+z = 2 + 3j                      # complex
+
+print(type(big))   # &lt;class 'int'&gt;
+print(type(pi))    # &lt;class 'float'&gt;</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Arithmetic Operators</h4>
+<pre><code>a, b = 17, 5
+
+print(a + b)    # 22   Addition
+print(a - b)    # 12   Subtraction
+print(a * b)    # 85   Multiplication
+print(a / b)    # 3.4  True division (always returns float)
+print(a // b)   # 3    Floor division
+print(a % b)    # 2    Modulo
+print(a ** b)   # 1419857  Exponentiation</code></pre>
+        <div class="note">In C++ and Java, <code>17 / 5</code> performs integer division yielding <code>3</code>. In Python, <code>/</code> always performs true division. Use <code>//</code> for floor division.</div>
+      </section>
+
+      <section id="strings">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">2.3 Strings</h3>
+        <p class="mb-3">Strings are immutable sequences of Unicode characters. Python does not have a separate <code>char</code> type; a single character is simply a string of length one.</p>
+<pre><code>name = "Ada Lovelace"
+initial = name[0]           # "A"
+length = len(name)          # 12
+
+upper = name.upper()        # "ADA LOVELACE"
+parts = name.split()        # ["Ada", "Lovelace"]
+joined = "-".join(parts)    # "Ada-Lovelace"</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">String Formatting (f-strings)</h4>
+<pre><code>voltage = 3.3
+unit = "V"
+print(f"Output: {voltage:.2f} {unit}")   # Output: 3.30 V</code></pre>
+      </section>
+
+      <section id="booleans">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">2.4 Booleans and Comparison Operators</h3>
+        <p class="mb-3">The <code>bool</code> type has exactly two instances: <code>True</code> and <code>False</code>. Many values have an implicit truth value: zero, empty collections, and <code>None</code> are falsy; everything else is truthy.</p>
+<pre><code># Comparison operators (same as C++/Java)
+print(5 > 3)       # True
+print(5 == 5.0)    # True - cross-type comparison
+
+# Boolean operators (words, not symbols)
+print(True and False)   # False
+print(True or False)    # True
+print(not True)         # False
+
+# Chained comparisons (unique to Python)
+x = 7
+print(1 < x < 10)  # True - equivalent to (1 < x) and (x < 10)</code></pre>
+        <div class="note">Python uses <code>and</code>, <code>or</code>, <code>not</code> instead of <code>&amp;&amp;</code>, <code>||</code>, <code>!</code>.</div>
+      </section>
+
+      <section id="type-conversion">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">2.5 Type Conversion</h3>
+        <p class="mb-3">Python performs limited implicit type promotion (e.g., <code>int</code> to <code>float</code> in mixed arithmetic). Explicit conversion uses constructor-like calls.</p>
+<pre><code>x = int("42")          # str to int
+y = float(7)           # int to float
+s = str(3.14)          # float to str
+b = bool(0)            # int to bool - False
+
+result = 10 + 2.5      # int + float = float (12.5)</code></pre>
+      </section>
+
+      <section id="exercises" class="bg-white border border-slate-200 rounded-xl p-6 mt-8 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>Exercises</h2>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700">
+          <li>Explain how Python decides the type of <code>x</code> in <code>x = 10</code>. How does this differ from <code>int x = 10;</code> in C++?</li>
+          <li>Write a program demonstrating the difference between <code>==</code> and <code>is</code> using integers inside and outside the cached range.</li>
+          <li>Compute the volume of a cylinder given radius and height. Display the result formatted to two decimal places.</li>
+          <li>Demonstrate implicit type promotion between <code>int</code> and <code>float</code> and explain when precision loss can occur.</li>
+          <li>Show how string concatenation with <code>+</code> in Python differs from Java's <code>+</code> operator when applied to non-string objects.</li>
+        </ol>
+      </section>
+
+      
+

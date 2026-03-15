@@ -1,0 +1,173 @@
+﻿<div class="mb-6">
+        <span class="inline-block bg-primary-100 text-primary-700 text-xs font-bold px-3 py-1 rounded-full mb-3">CHAPTER 04</span>
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Functions and Scope</h1>
+        <p class="text-slate-500">Defining functions, parameter passing, closures, and the LEGB scope model.</p>
+      </div>
+
+      <section id="outcomes" class="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Learning Outcomes</h2>
+        <ul class="space-y-2 text-sm text-slate-700">
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Define functions using <code>def</code> and <code>lambda</code>.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use positional, keyword, default, <code>*args</code>, and <code>**kwargs</code> parameters.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Explain the LEGB scope resolution rule.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Create closures and higher-order functions.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Add type hints and docstrings for documentation.</li>
+        </ul>
+      </section>
+
+      <section id="defining-functions">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4">4.1 Defining Functions</h3>
+        <p class="mb-3">Functions are first-class objects in Python. Unlike C++/Java, they are defined at runtime and can be assigned to variables, stored in data structures, and passed as arguments.</p>
+<pre><code>def greet(name: str) -> str:
+    """Return a greeting string."""
+    return f"Hello, {name}!"
+
+# Functions are objects
+say_hello = greet
+print(say_hello("World"))  # Hello, World!</code></pre>
+        <div class="note">Python functions always return a value. If no <code>return</code> is given, the function returns <code>None</code>.</div>
+      </section>
+
+      <section id="parameters">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">4.2 Parameter Types</h3>
+<pre><code># Positional and keyword arguments
+def connect(host, port=3306, timeout=30):
+    print(f"Connecting to {host}:{port} (timeout={timeout}s)")
+
+connect("db.server.com")                   # positional
+connect("db.server.com", port=5432)         # keyword
+connect("db.server.com", timeout=10)        # keyword
+
+# Variable positional (*args)
+def total(*values):
+    return sum(values)
+print(total(1, 2, 3, 4))   # 10
+
+# Variable keyword (**kwargs)
+def build_config(**kwargs):
+    return {k: v for k, v in kwargs.items()}
+print(build_config(debug=True, port=8080))</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Keyword-Only and Positional-Only Parameters</h4>
+<pre><code># Keyword-only (after *)
+def safe_div(a, b, *, round_digits=2):
+    return round(a / b, round_digits)
+
+# Positional-only (before /)  (Python 3.8+)
+def power(base, exp, /):
+    return base ** exp</code></pre>
+        <div class="note"><strong>Mutable Default Argument Trap:</strong> Never use a mutable object (list, dict) as a default parameter value. Use <code>None</code> and create the object inside the function body.</div>
+<pre><code># WRONG - the list is shared across all calls
+def append_to(item, target=[]):
+    target.append(item)
+    return target
+
+# CORRECT
+def append_to(item, target=None):
+    if target is None:
+        target = []
+    target.append(item)
+    return target</code></pre>
+      </section>
+
+      <section id="scope">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">4.3 Scope and the LEGB Rule</h3>
+        <p class="mb-3">Python resolves names using the <strong>LEGB</strong> order: <strong>L</strong>ocal → <strong>E</strong>nclosing → <strong>G</strong>lobal → <strong>B</strong>uilt-in.</p>
+<pre><code>x = "global"
+
+def outer():
+    x = "enclosing"
+    def inner():
+        x = "local"
+        print(x)          # local
+    inner()
+    print(x)              # enclosing
+
+outer()
+print(x)                  # global</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">global and nonlocal</h4>
+<pre><code>counter = 0
+def increment():
+    global counter
+    counter += 1
+
+def make_counter():
+    count = 0
+    def inc():
+        nonlocal count
+        count += 1
+        return count
+    return inc</code></pre>
+      </section>
+
+      <section id="lambda">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">4.4 Lambda Expressions</h3>
+        <p class="mb-3">Lambda creates small anonymous functions. They are limited to a single expression.</p>
+<pre><code># Sort by second element
+pairs = [(1, "b"), (3, "a"), (2, "c")]
+pairs.sort(key=lambda p: p[1])
+print(pairs)  # [(3, 'a'), (1, 'b'), (2, 'c')]
+
+# Equivalent to Java lambda:  (p) -> p[1]
+# Equivalent to C++ lambda:   [](auto p){ return p.second; }</code></pre>
+      </section>
+
+      <section id="closures">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">4.5 Closures and Higher-Order Functions</h3>
+<pre><code>def make_multiplier(factor):
+    """Return a function that multiplies by factor."""
+    def multiplier(x):
+        return x * factor
+    return multiplier
+
+double = make_multiplier(2)
+triple = make_multiplier(3)
+print(double(5))   # 10
+print(triple(5))   # 15</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Built-in Higher-Order Functions</h4>
+<pre><code>nums = [1, 2, 3, 4, 5]
+
+squared = list(map(lambda x: x**2, nums))       # [1, 4, 9, 16, 25]
+evens = list(filter(lambda x: x % 2 == 0, nums)) # [2, 4]
+
+from functools import reduce
+total = reduce(lambda a, b: a + b, nums)          # 15</code></pre>
+      </section>
+
+      <section id="type-hints">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">4.6 Type Hints and Docstrings</h3>
+<pre><code>def binary_search(arr: list[int], target: int) -> int:
+    """Return the index of target in sorted arr, or -1 if not found.
+
+    Args:
+        arr: A sorted list of integers.
+        target: The integer to search for.
+
+    Returns:
+        The index of target, or -1.
+    """
+    lo, hi = 0, len(arr) - 1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            lo = mid + 1
+        else:
+            hi = mid - 1
+    return -1</code></pre>
+        <div class="note">Type hints are optional and not enforced at runtime. Use tools like <code>mypy</code> for static type checking, similar to TypeScript's relationship with JavaScript.</div>
+      </section>
+
+      <section id="exercises" class="bg-white border border-slate-200 rounded-xl p-6 mt-8 shadow-sm">
+        <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>Exercises</h2>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700">
+          <li>Write a function <code>clamp(value, lo, hi)</code> that returns the value bounded within the range, using keyword-only arguments for lo and hi.</li>
+          <li>Demonstrate the mutable default argument trap with a list and show the corrected version.</li>
+          <li>Create a <code>make_logger(prefix)</code> closure that returns a function printing messages with the given prefix.</li>
+          <li>Rewrite three small loops using <code>map</code>, <code>filter</code>, and <code>reduce</code>.</li>
+          <li>Add complete type hints and a Google-style docstring to a function that computes the dot product of two vectors.</li>
+        </ol>
+      </section>
+
+      
+

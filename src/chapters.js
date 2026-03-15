@@ -1,0 +1,16 @@
+export const chapters = [
+  { id: '01', title: 'Orientation and Execution Model', desc: 'Interpreted vs. compiled workflows, the Python runtime, virtual environments, and development setup.' },
+  { id: '02', title: 'Variables, Types, and Expressions', desc: 'Dynamic typing, name binding, scalar types, operators, and type coercion.' },
+  { id: '03', title: 'Control Flow', desc: 'Conditionals, loops, comprehensions, and Pythonic iteration patterns.' },
+  { id: '04', title: 'Functions and Scope', desc: 'Defining functions, parameter passing, closures, and the LEGB scope model.' },
+  { id: '05', title: 'Data Structures', desc: 'Lists, tuples, dictionaries, sets, and their performance characteristics.' },
+  { id: '06', title: 'Object-Oriented Programming', desc: 'Classes, inheritance, encapsulation, polymorphism, and dunder methods.' },
+  { id: '07', title: 'Modules, Packages, and the Standard Library', desc: 'Organizing code with modules, creating packages, pip, and essential stdlib modules.' },
+  { id: '08', title: 'Error Handling and Exceptions', desc: 'try/except, custom exceptions, context managers, and EAFP vs LBYL.' },
+  { id: '09', title: 'File I/O and Serialization', desc: 'Reading/writing files, CSV, JSON, binary data, and pickle serialization.' },
+  { id: '10', title: 'Iterators, Generators, and Decorators', desc: 'The iterator protocol, lazy evaluation with generators, and function decorators.' },
+  { id: '11', title: 'Testing and Debugging', desc: 'Unit testing with pytest, assertions, mocking, and debugging techniques.' },
+  { id: '12', title: 'Numerical Computing with NumPy', desc: 'N-dimensional arrays, vectorized operations, broadcasting, and linear algebra.' },
+  { id: '13', title: 'Data Analysis with Pandas', desc: 'DataFrames, Series, data cleaning, grouping, merging, and analysis workflows.' },
+  { id: '14', title: 'Visualization with Matplotlib', desc: 'Creating publication-quality plots, subplots, customization, and Seaborn integration.' },
+];
