@@ -52,6 +52,102 @@ z = 2 + 3j                      # complex
 
 print(type(big))   # &lt;class 'int'&gt;
 print(type(pi))    # &lt;class 'float'&gt;</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Arbitrary-Precision Integers &mdash; No Size Limit</h4>
+        <p class="mb-3">One of the most striking differences between Python and C++/Java is that Python integers have <strong>no fixed size</strong>. They grow dynamically to accommodate any value, limited only by available memory. There is no overflow, no wraparound, and no need to choose between <code>int</code>, <code>long</code>, or <code>long long</code>.</p>
+<pre><code>import sys
+
+# Small integer
+a = 42
+print(sys.getsizeof(a))      # 28 bytes
+
+# Medium integer
+b = 2 ** 100
+print(b)                      # 1267650600228229401496703205376
+print(sys.getsizeof(b))      # 44 bytes
+
+# Large integer
+c = 2 ** 1000
+print(len(str(c)))            # 302 digits!
+print(sys.getsizeof(c))      # 164 bytes
+
+# Huge integer
+d = 2 ** 10000
+print(len(str(d)))            # 3011 digits
+print(sys.getsizeof(d))      # 1356 bytes
+
+# Python handles this without any special type
+print(type(d))                # &lt;class 'int'&gt;  - still just "int"</code></pre>
+        <p class="mb-3">As you can see, <code>sys.getsizeof()</code> reveals that Python integers grow in memory as the value increases. A small number like <code>42</code> uses 28 bytes, while <code>2 ** 10000</code> (a 3011-digit number) uses over 1 KB.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Comparison with C++ Integer Types</h4>
+        <p class="mb-3">In C++, integer types have fixed sizes and maximum values. If a computation exceeds the maximum, the result silently overflows and wraps around &mdash; a common source of bugs.</p>
+        <div class="comparison">
+          <div>
+            <h4>C++ Fixed-Size Types</h4>
+<pre><code>// C++ integer limits
+#include &lt;climits&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    // int: 4 bytes, max 2,147,483,647
+    std::cout &lt;&lt; sizeof(int) &lt;&lt; std::endl;        // 4
+    std::cout &lt;&lt; INT_MAX &lt;&lt; std::endl;             // 2147483647
+
+    // long long: 8 bytes, max 9.2 x 10^18
+    std::cout &lt;&lt; sizeof(long long) &lt;&lt; std::endl;   // 8
+    std::cout &lt;&lt; LLONG_MAX &lt;&lt; std::endl;           // 9223372036854775807
+
+    // OVERFLOW! Silent wraparound
+    int x = INT_MAX;
+    std::cout &lt;&lt; x + 1 &lt;&lt; std::endl;  // -2147483648 (BUG!)
+}</code></pre>
+          </div>
+          <div>
+            <h4>Python &mdash; No Limit</h4>
+<pre><code>import sys
+
+# Python int grows as needed
+x = 2_147_483_647         # Same as C++ INT_MAX
+print(x + 1)              # 2147483648 - no overflow!
+
+x = 9_223_372_036_854_775_807  # Same as C++ LLONG_MAX
+print(x + 1)              # 9223372036854775808 - still fine!
+
+# Python can go far beyond any C++ type
+x = 10 ** 100             # A googol - 101 digits
+print(type(x))            # &lt;class 'int'&gt;
+print(sys.getsizeof(x))   # 72 bytes</code></pre>
+          </div>
+        </div>
+
+        <table>
+          <tr><th>C++ Type</th><th>Size</th><th>Max Value</th><th>Python Equivalent</th></tr>
+          <tr><td><code>short</code></td><td>2 bytes</td><td>32,767</td><td rowspan="4">Just <code>int</code> &mdash; handles all of these and beyond</td></tr>
+          <tr><td><code>int</code></td><td>4 bytes</td><td>~2.1 &times; 10<sup>9</sup></td></tr>
+          <tr><td><code>long long</code></td><td>8 bytes</td><td>~9.2 &times; 10<sup>18</sup></td></tr>
+          <tr><td><code>unsigned long long</code></td><td>8 bytes</td><td>~1.8 &times; 10<sup>19</sup></td></tr>
+        </table>
+
+        <div class="note" style="border-left-color: #ef4444; background: #fef2f2; color: #991b1b;"><strong>&#9888; Memory Warning:</strong> Just because Python integers have no <em>arithmetic</em> limit does not mean they are free. Every digit costs memory. Computing extremely large values like <code>10 ** 10_000_000</code> can consume gigabytes of RAM and freeze your program. Always be mindful of the size of numbers in loops and recursive computations. The convenience of unlimited precision comes with the responsibility of managing memory.</div>
+
+<pre><code>import sys
+
+# Demonstrating memory growth
+for exp in [10, 100, 1000, 10_000, 100_000, 1_000_000]:
+    n = 2 ** exp
+    size = sys.getsizeof(n)
+    digits = len(str(n))
+    print(f"2^{exp:>10,}  →  {digits:>8,} digits  →  {size:>10,} bytes")
+
+# Output:
+# 2^        10  →         4 digits  →          28 bytes
+# 2^       100  →        31 digits  →          44 bytes
+# 2^     1,000  →       302 digits  →         164 bytes
+# 2^    10,000  →     3,011 digits  →       1,356 bytes
+# 2^   100,000  →    30,103 digits  →      13,348 bytes
+# 2^ 1,000,000  →   301,030 digits  →     133,260 bytes  (~130 KB!)</code></pre>
+
         <h4 class="font-semibold text-slate-800 mt-4 mb-2">Arithmetic Operators</h4>
 <pre><code>a, b = 17, 5
 
@@ -63,6 +159,100 @@ print(a // b)   # 3    Floor division
 print(a % b)    # 2    Modulo
 print(a ** b)   # 1419857  Exponentiation</code></pre>
         <div class="note">In C++ and Java, <code>17 / 5</code> performs integer division yielding <code>3</code>. In Python, <code>/</code> always performs true division. Use <code>//</code> for floor division.</div>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Readable Numeric Literals &mdash; Underscore Separators</h4>
+        <p class="mb-3">Python allows underscores (<code>_</code>) inside numeric literals as visual separators. They are ignored by the interpreter and exist only to make large numbers easier to read:</p>
+<pre><code># Without underscores (hard to read)
+population = 8100000000
+budget = 4500000.75
+
+# With underscores (much clearer)
+population = 8_100_000_000
+budget = 4_500_000.75
+
+print(population)   # 8100000000  (underscore is not stored)
+print(budget)       # 4500000.75
+
+# Works with any numeric type
+binary  = 0b1010_0001_1100_0011
+hex_val = 0xFF_EC_DA
+octal   = 0o17_55
+big_int = 10_000_000_000_000
+
+# Also works with floats and scientific notation
+pi_approx = 3.14_15_92
+avogadro  = 6.022_140_76e23</code></pre>
+        <div class="note">Underscores in numbers were introduced in Python 3.6 (PEP 515). C++ added a similar feature (<code>1'000'000</code>) in C++14, but uses single quotes instead.</div>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Number Bases: Binary, Octal, Decimal, and Hexadecimal</h4>
+        <p class="mb-3">Python supports four integer bases. <strong>Decimal (base 10)</strong> is the default numbering system &mdash; any integer literal without a prefix is decimal.</p>
+
+        <table>
+          <tr><th>Base</th><th>Prefix</th><th>Digits</th><th>Example</th><th>Decimal Value</th></tr>
+          <tr><td>Binary (2)</td><td><code>0b</code> or <code>0B</code></td><td>0&ndash;1</td><td><code>0b1010</code></td><td>10</td></tr>
+          <tr><td>Octal (8)</td><td><code>0o</code> or <code>0O</code></td><td>0&ndash;7</td><td><code>0o17</code></td><td>15</td></tr>
+          <tr><td>Decimal (10)</td><td><em>none (default)</em></td><td>0&ndash;9</td><td><code>255</code></td><td>255</td></tr>
+          <tr><td>Hexadecimal (16)</td><td><code>0x</code> or <code>0X</code></td><td>0&ndash;9, A&ndash;F</td><td><code>0xFF</code></td><td>255</td></tr>
+        </table>
+
+<pre><code># Writing integers in different bases
+decimal = 255
+binary  = 0b11111111     # 255 in binary
+octal   = 0o377          # 255 in octal
+hexa    = 0xFF           # 255 in hexadecimal
+
+# They are all the same integer
+print(decimal == binary == octal == hexa)   # True
+print(type(binary))   # &lt;class 'int'&gt;  — always stored as int</code></pre>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2 mt-4">Converting Between Bases</p>
+        <p class="mb-3">Use built-in functions to convert an integer to a string in a different base, or parse a string in a given base back to an integer:</p>
+<pre><code>n = 255
+
+# int → string in different bases
+print(bin(n))     # '0b11111111'
+print(oct(n))     # '0o377'
+print(hex(n))     # '0xff'
+
+# Remove the prefix if needed
+print(bin(n)[2:])   # '11111111'
+print(hex(n)[2:])   # 'ff'
+
+# String → int  (specify the base)
+print(int('11111111', 2))    # 255   (binary string → int)
+print(int('377', 8))         # 255   (octal string → int)
+print(int('FF', 16))         # 255   (hex string → int)
+print(int('255', 10))        # 255   (decimal string → int)
+
+# int() auto-detects base when given a prefix and base=0
+print(int('0b1010', 0))     # 10
+print(int('0o17', 0))       # 15
+print(int('0xFF', 0))       # 255</code></pre>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2 mt-4">Formatted Output in Different Bases</p>
+<pre><code>n = 42
+
+# Using format specifiers
+print(f"{n:b}")     # '101010'    binary (no prefix)
+print(f"{n:#b}")    # '0b101010'  binary with prefix
+print(f"{n:o}")     # '52'        octal
+print(f"{n:#o}")    # '0o52'      octal with prefix
+print(f"{n:x}")     # '2a'        hex lowercase
+print(f"{n:#X}")    # '0X2A'      hex uppercase with prefix
+print(f"{n:d}")     # '42'        decimal (explicit)
+
+# Combine with padding for aligned output
+for i in [8, 16, 32, 64, 128, 255]:
+    print(f"{i:>4d}  {i:#06x}  {i:#010b}")</code></pre>
+        <p class="mb-3 text-sm text-slate-600">Output:</p>
+<pre><code>#    8  0x0008  0b00001000
+#   16  0x0010  0b00010000
+#   32  0x0020  0b00100000
+#   64  0x0040  0b01000000
+#  128  0x0080  0b10000000
+#  255  0x00ff  0b11111111</code></pre>
+
+        <div class="note"><strong>Default numbering system:</strong> Python always uses <strong>decimal (base 10)</strong> by default. When you <code>print()</code> any integer, it is displayed in decimal, regardless of how it was written. The prefixes <code>0b</code>, <code>0o</code>, and <code>0x</code> are only for literal notation and output formatting.</div>
       </section>
 
       <section id="strings">
@@ -75,6 +265,114 @@ length = len(name)          # 12
 upper = name.upper()        # "ADA LOVELACE"
 parts = name.split()        # ["Ada", "Lovelace"]
 joined = "-".join(parts)    # "Ada-Lovelace"</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">String Methods Reference</h4>
+        <p class="mb-3">Python strings come with a rich set of built-in methods. Below are the most commonly used ones:</p>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2">Case Conversion</p>
+        <table>
+          <tr><th>Method</th><th>Description</th><th>Example</th><th>Result</th></tr>
+          <tr><td><code>upper()</code></td><td>All characters to uppercase</td><td><code>"hello".upper()</code></td><td><code>"HELLO"</code></td></tr>
+          <tr><td><code>lower()</code></td><td>All characters to lowercase</td><td><code>"HELLO".lower()</code></td><td><code>"hello"</code></td></tr>
+          <tr><td><code>title()</code></td><td>First letter of each word capitalized</td><td><code>"hello world".title()</code></td><td><code>"Hello World"</code></td></tr>
+          <tr><td><code>capitalize()</code></td><td>First character capitalized</td><td><code>"hello world".capitalize()</code></td><td><code>"Hello world"</code></td></tr>
+          <tr><td><code>swapcase()</code></td><td>Swap upper/lower case</td><td><code>"Hello".swapcase()</code></td><td><code>"hELLO"</code></td></tr>
+        </table>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2 mt-4">Search and Check</p>
+        <table>
+          <tr><th>Method</th><th>Description</th><th>Example</th><th>Result</th></tr>
+          <tr><td><code>find(sub)</code></td><td>Index of first occurrence (-1 if not found)</td><td><code>"python".find("th")</code></td><td><code>2</code></td></tr>
+          <tr><td><code>index(sub)</code></td><td>Like <code>find()</code> but raises error if not found</td><td><code>"python".index("th")</code></td><td><code>2</code></td></tr>
+          <tr><td><code>count(sub)</code></td><td>Count non-overlapping occurrences</td><td><code>"banana".count("a")</code></td><td><code>3</code></td></tr>
+          <tr><td><code>startswith(s)</code></td><td>Check if string starts with <code>s</code></td><td><code>"hello".startswith("he")</code></td><td><code>True</code></td></tr>
+          <tr><td><code>endswith(s)</code></td><td>Check if string ends with <code>s</code></td><td><code>"file.py".endswith(".py")</code></td><td><code>True</code></td></tr>
+          <tr><td><code>in</code></td><td>Membership test (operator, not method)</td><td><code>"th" in "python"</code></td><td><code>True</code></td></tr>
+        </table>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2 mt-4">Modify and Replace</p>
+        <table>
+          <tr><th>Method</th><th>Description</th><th>Example</th><th>Result</th></tr>
+          <tr><td><code>replace(old, new)</code></td><td>Replace all occurrences</td><td><code>"hello".replace("l", "r")</code></td><td><code>"herro"</code></td></tr>
+          <tr><td><code>strip()</code></td><td>Remove leading/trailing whitespace</td><td><code>"  hi  ".strip()</code></td><td><code>"hi"</code></td></tr>
+          <tr><td><code>lstrip()</code></td><td>Remove leading whitespace</td><td><code>"  hi  ".lstrip()</code></td><td><code>"hi  "</code></td></tr>
+          <tr><td><code>rstrip()</code></td><td>Remove trailing whitespace</td><td><code>"  hi  ".rstrip()</code></td><td><code>"  hi"</code></td></tr>
+          <tr><td><code>center(w)</code></td><td>Center in width <code>w</code></td><td><code>"hi".center(10, "-")</code></td><td><code>"----hi----"</code></td></tr>
+          <tr><td><code>zfill(w)</code></td><td>Pad with zeros to width <code>w</code></td><td><code>"42".zfill(5)</code></td><td><code>"00042"</code></td></tr>
+        </table>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2 mt-4">Split and Join</p>
+        <table>
+          <tr><th>Method</th><th>Description</th><th>Example</th><th>Result</th></tr>
+          <tr><td><code>split(sep)</code></td><td>Split into list by separator</td><td><code>"a,b,c".split(",")</code></td><td><code>["a", "b", "c"]</code></td></tr>
+          <tr><td><code>rsplit(sep)</code></td><td>Split from right</td><td><code>"a.b.c".rsplit(".", 1)</code></td><td><code>["a.b", "c"]</code></td></tr>
+          <tr><td><code>splitlines()</code></td><td>Split by line breaks</td><td><code>"a\nb\nc".splitlines()</code></td><td><code>["a", "b", "c"]</code></td></tr>
+          <tr><td><code>join(iterable)</code></td><td>Join elements with string as separator</td><td><code>", ".join(["a", "b"])</code></td><td><code>"a, b"</code></td></tr>
+        </table>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2 mt-4">Type Checking</p>
+        <table>
+          <tr><th>Method</th><th>Description</th><th>Example</th><th>Result</th></tr>
+          <tr><td><code>isdigit()</code></td><td>All characters are digits</td><td><code>"123".isdigit()</code></td><td><code>True</code></td></tr>
+          <tr><td><code>isalpha()</code></td><td>All characters are alphabetic</td><td><code>"hello".isalpha()</code></td><td><code>True</code></td></tr>
+          <tr><td><code>isalnum()</code></td><td>All characters are alphanumeric</td><td><code>"abc123".isalnum()</code></td><td><code>True</code></td></tr>
+          <tr><td><code>isspace()</code></td><td>All characters are whitespace</td><td><code>"  ".isspace()</code></td><td><code>True</code></td></tr>
+          <tr><td><code>isupper()</code></td><td>All cased characters are uppercase</td><td><code>"ABC".isupper()</code></td><td><code>True</code></td></tr>
+          <tr><td><code>islower()</code></td><td>All cased characters are lowercase</td><td><code>"abc".islower()</code></td><td><code>True</code></td></tr>
+        </table>
+
+        <div class="note">Since strings are <strong>immutable</strong>, none of these methods modify the original string. They always return a <em>new</em> string. This is different from C++ <code>std::string</code> where methods like <code>erase()</code> or <code>replace()</code> modify the string in place.</div>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Indexing and Slicing</h4>
+        <p class="mb-3">Python supports powerful indexing using square brackets <code>[]</code>. You can use <strong>positive indices</strong> (counting from the start at 0) or <strong>negative indices</strong> (counting backwards from the end at -1).</p>
+<pre><code>text = "PYTHON"
+#        P  Y  T  H  O  N
+#        0  1  2  3  4  5    ← positive index
+#       -6 -5 -4 -3 -2 -1   ← negative index
+
+# Positive indexing (from the start)
+print(text[0])     # "P"  - first character
+print(text[3])     # "H"  - fourth character
+print(text[5])     # "N"  - last character
+
+# Negative indexing (from the end)
+print(text[-1])    # "N"  - last character
+print(text[-2])    # "O"  - second to last
+print(text[-6])    # "P"  - first character</code></pre>
+
+        <p class="mb-3"><strong>Slicing</strong> extracts a substring using the syntax <code>string[start:stop:step]</code>. The <code>start</code> is inclusive, <code>stop</code> is exclusive, and <code>step</code> is optional.</p>
+<pre><code>text = "PYTHON"
+
+# Basic slicing [start:stop]
+print(text[0:3])    # "PYT"  - characters 0, 1, 2
+print(text[2:5])    # "THO"  - characters 2, 3, 4
+
+# Omit start or stop
+print(text[:3])     # "PYT"  - from beginning to index 3
+print(text[3:])     # "HON"  - from index 3 to end
+print(text[:])      # "PYTHON" - full copy
+
+# Negative indices in slicing
+print(text[-3:])    # "HON"  - last 3 characters
+print(text[:-2])    # "PYTH" - everything except last 2
+
+# Step (stride)
+print(text[::2])    # "PTO"  - every 2nd character
+print(text[1::2])   # "YHN"  - every 2nd character starting at 1
+print(text[::-1])   # "NOHTYP" - reversed string!
+print(text[::-2])   # "NHY"  - reversed, every 2nd character</code></pre>
+
+        <p class="mb-3">Slicing is <strong>safe</strong> &mdash; it never raises an error for out-of-range indices. Python silently clips them to the valid range:</p>
+<pre><code>text = "PYTHON"
+
+print(text[0:100])   # "PYTHON" - stop clipped to len(text)
+print(text[-100:3])  # "PYT"    - start clipped to 0
+
+# But direct indexing DOES raise an error
+# text[100]  → IndexError: string index out of range</code></pre>
+
+        <div class="note"><strong>Key insight:</strong> Indexing and slicing work identically on all Python sequences &mdash; strings, lists, and tuples. Learn it once, use it everywhere. In C++, <code>std::string::substr(pos, len)</code> takes a position and a <em>length</em>, while Python slicing takes <em>start</em> and <em>stop</em> positions.</div>
+
         <h4 class="font-semibold text-slate-800 mt-4 mb-2">String Formatting (f-strings)</h4>
 <pre><code>voltage = 3.3
 unit = "V"
@@ -97,6 +395,100 @@ print(not True)         # False
 x = 7
 print(1 < x < 10)  # True - equivalent to (1 < x) and (x < 10)</code></pre>
         <div class="note">Python uses <code>and</code>, <code>or</code>, <code>not</code> instead of <code>&amp;&amp;</code>, <code>||</code>, <code>!</code>.</div>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Short-Circuit Evaluation</h4>
+        <p class="mb-3">Python's <code>and</code> and <code>or</code> operators use <strong>short-circuit evaluation</strong> &mdash; they stop evaluating as soon as the result is determined. This is the same concept as <code>&amp;&amp;</code> and <code>||</code> in C++, but with an important twist: Python returns the <em>actual value</em> that decided the result, not just <code>True</code> or <code>False</code>.</p>
+
+        <div class="comparison">
+          <div>
+            <h4><code>and</code> &mdash; Short-Circuits on First Falsy</h4>
+            <p>If the left operand is falsy, return it immediately (the right operand is <strong>never evaluated</strong>). Otherwise return the right operand.</p>
+          </div>
+          <div>
+            <h4><code>or</code> &mdash; Short-Circuits on First Truthy</h4>
+            <p>If the left operand is truthy, return it immediately (the right operand is <strong>never evaluated</strong>). Otherwise return the right operand.</p>
+          </div>
+        </div>
+
+<pre><code># ── Short-circuit with `and` ──
+# If the first value is falsy, Python returns it immediately
+# and NEVER looks at the second value
+
+print(0 and 42)           # 0     (0 is falsy → returned immediately)
+print("" and "hello")     # ""    ("" is falsy → returned immediately)
+print(None and 100)       # None  (None is falsy → returned immediately)
+
+# If the first value is truthy, Python must check the second value
+print(1 and 42)           # 42    (1 is truthy → return second value)
+print("hi" and "hello")   # "hello"
+
+# ── Short-circuit with `or` ──
+# If the first value is truthy, Python returns it immediately
+# and NEVER looks at the second value
+
+print(42 or 0)            # 42    (42 is truthy → returned immediately)
+print("hello" or "")      # "hello"
+
+# If the first value is falsy, Python must check the second value
+print(0 or 42)            # 42    (0 is falsy → return second value)
+print("" or "default")    # "default"
+print(None or "fallback") # "fallback"</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Proving Short-Circuit: Skipped Evaluation</h4>
+        <p class="mb-3">We can prove that the second operand is never evaluated by using a function with a side effect:</p>
+<pre><code>def expensive():
+    print("  expensive() was called!")
+    return 42
+
+# With `and`: if first is falsy, expensive() is NEVER called
+print("Test 1:")
+result = 0 and expensive()
+print(f"  result = {result}")
+# Output:
+#   Test 1:
+#   result = 0               ← expensive() was NOT called
+
+print("Test 2:")
+result = 1 and expensive()
+print(f"  result = {result}")
+# Output:
+#   Test 2:
+#   expensive() was called!  ← expensive() WAS called
+#   result = 42
+
+# With `or`: if first is truthy, expensive() is NEVER called
+print("Test 3:")
+result = "exists" or expensive()
+print(f"  result = {result}")
+# Output:
+#   Test 3:
+#   result = exists           ← expensive() was NOT called</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Practical Uses</h4>
+        <p class="mb-3">Short-circuit evaluation is not just a curiosity &mdash; Python programmers use it every day:</p>
+<pre><code># 1. Default values (very common pattern)
+username = input_name or "Anonymous"
+# If input_name is empty/""/None → use "Anonymous"
+
+# 2. Safe access - avoid division by zero
+x = 10
+y = 0
+safe = y != 0 and x / y    # y is 0 → False, x/y never computed
+print(safe)                  # False (no ZeroDivisionError!)
+
+# 3. Conditional function call
+data = None
+result = data and data.process()  # data is None → process() never called
+# This avoids: AttributeError: 'NoneType' has no attribute 'process'
+
+# 4. First available value from multiple sources
+config = None
+env_var = ""
+default = "localhost"
+host = config or env_var or default
+print(host)  # "localhost" (first truthy value wins)</code></pre>
+
+        <div class="note"><strong>C++ comparison:</strong> C++ <code>&amp;&amp;</code> and <code>||</code> also short-circuit, but they always return <code>true</code> or <code>false</code> (a boolean). Python returns the <em>actual operand</em> that determined the result, which makes patterns like <code>value or default</code> possible.</div>
       </section>
 
       <section id="type-conversion">

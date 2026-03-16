@@ -19,9 +19,22 @@ import {
 } from '@codemirror/language';
 
 function detectLanguage(code) {
-  const first = code.trim().split('\n')[0].toLowerCase();
+  const trimmed = code.trim();
+  const first = trimmed.split('\n')[0].toLowerCase();
+
+  // C++ detection
   if (first.startsWith('//') || first.includes('cout') || first.includes('std::') || first.includes('#include')) return 'cpp';
-  if (first.startsWith('$') || first.startsWith('>>>') === false && (first.startsWith('#') && (first.includes('bash') || first.includes('terminal') || first.includes('shell')))) return 'shell';
+
+  // Shell / command-line detection
+  if (first.startsWith('$') || first.startsWith('pip ') || first.startsWith('python ') || first.startsWith('pytest ')) return 'shell';
+  if (first.startsWith('#') && (first.includes('bash') || first.includes('terminal') || first.includes('shell') || first.includes('run '))) return 'shell';
+
+  // Directory tree / plain text detection (e.g., myproject/, ├──, BaseException)
+  if (/^[a-z_]+\/$/m.test(first) || trimmed.includes('├──') || trimmed.includes('└──') || trimmed.includes('+--')) return 'shell';
+
+  // Requirements file (package>=version)
+  if (/^[a-z][a-z0-9_-]*[><=]=?\d/m.test(first)) return 'shell';
+
   return 'python';
 }
 
@@ -34,10 +47,9 @@ const copyIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const checkIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 
 export function initCodeBlocks(container) {
-  const codeEls = container.querySelectorAll('pre > code, pre:not(.cm-enhanced)');
+  const pres = container.querySelectorAll('pre');
 
-  codeEls.forEach((el) => {
-    const pre = el.tagName === 'CODE' ? el.parentElement : el;
+  pres.forEach((pre) => {
     if (pre.closest('.code-block')) return;
 
     const code = (pre.querySelector('code') || pre).textContent;

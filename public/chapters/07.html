@@ -107,14 +107,158 @@ with open("data.json", "w") as f:
     json.dump(data, f)
 with open("data.json") as f:
     loaded = json.load(f)</code></pre>
-        <h4 class="font-semibold text-slate-800 mt-4 mb-2">datetime - Date and Time</h4>
-<pre><code>from datetime import datetime, timedelta
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">datetime &mdash; Date and Time</h4>
+        <p class="mb-3">The <code>datetime</code> module provides classes for manipulating dates and times. The four key classes are:</p>
+        <ul class="list-disc list-inside space-y-1 text-slate-700 mb-3">
+          <li><code>date</code> &mdash; a calendar date (year, month, day)</li>
+          <li><code>time</code> &mdash; a time of day (hour, minute, second, microsecond)</li>
+          <li><code>datetime</code> &mdash; combines date and time into one object</li>
+          <li><code>timedelta</code> &mdash; a duration (difference between two dates/times)</li>
+        </ul>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2">Creating Date and Time Objects</p>
+<pre><code>from datetime import date, time, datetime, timedelta
+
+# Current date/time
+today = date.today()                    # e.g. 2025-03-15
+now = datetime.now()                    # e.g. 2025-03-15 14:30:00.123456
+
+# Create specific dates
+birthday = date(2000, 5, 17)            # May 17, 2000
+meeting = datetime(2025, 6, 1, 9, 30)   # June 1, 2025 at 09:30
+
+# Create from string (parsing)
+d = date.fromisoformat("2025-12-25")
+dt = datetime.fromisoformat("2025-12-25T18:00:00")</code></pre>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2 mt-4">Extracting Components</p>
+<pre><code>from datetime import datetime
 
 now = datetime.now()
-print(now.strftime("%Y-%m-%d %H:%M"))
 
-deadline = now + timedelta(days=7)
-print(f"Due: {deadline:%B %d, %Y}")</code></pre>
+# Extract individual components
+print(now.year)        # 2025
+print(now.month)       # 3
+print(now.day)         # 15
+print(now.hour)        # 14
+print(now.minute)      # 30
+print(now.second)      # 0
+
+# Get just the date or time part
+print(now.date())      # 2025-03-15
+print(now.time())      # 14:30:00.123456
+
+# Day of week (0=Monday, 6=Sunday)
+print(now.weekday())   # 5 (Saturday)
+
+# ISO day of week (1=Monday, 7=Sunday)
+print(now.isoweekday())  # 6
+
+# ISO calendar (year, week number, weekday)
+print(now.isocalendar())  # (2025, 11, 6)</code></pre>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2 mt-4">Formatting and Parsing</p>
+<pre><code>from datetime import datetime
+
+now = datetime.now()
+
+# Format to string with strftime
+print(now.strftime("%Y-%m-%d"))           # "2025-03-15"
+print(now.strftime("%d/%m/%Y"))           # "15/03/2025"
+print(now.strftime("%B %d, %Y"))          # "March 15, 2025"
+print(now.strftime("%H:%M:%S"))           # "14:30:00"
+print(now.strftime("%I:%M %p"))           # "02:30 PM"
+print(now.strftime("%A, %B %d, %Y"))      # "Saturday, March 15, 2025"
+
+# Parse string to datetime with strptime
+dt = datetime.strptime("25/12/2025", "%d/%m/%Y")
+print(dt)   # 2025-12-25 00:00:00
+
+# f-string formatting (Python 3.6+)
+print(f"Today is {now:%A, %B %d}")        # "Today is Saturday, March 15"</code></pre>
+
+        <p class="mb-3">Common format codes:</p>
+        <table>
+          <tr><th>Code</th><th>Meaning</th><th>Example</th></tr>
+          <tr><td><code>%Y</code></td><td>4-digit year</td><td><code>2025</code></td></tr>
+          <tr><td><code>%m</code></td><td>Month (zero-padded)</td><td><code>03</code></td></tr>
+          <tr><td><code>%d</code></td><td>Day (zero-padded)</td><td><code>15</code></td></tr>
+          <tr><td><code>%H</code></td><td>Hour 24h (zero-padded)</td><td><code>14</code></td></tr>
+          <tr><td><code>%I</code></td><td>Hour 12h (zero-padded)</td><td><code>02</code></td></tr>
+          <tr><td><code>%M</code></td><td>Minute</td><td><code>30</code></td></tr>
+          <tr><td><code>%S</code></td><td>Second</td><td><code>00</code></td></tr>
+          <tr><td><code>%p</code></td><td>AM/PM</td><td><code>PM</code></td></tr>
+          <tr><td><code>%A</code></td><td>Full weekday name</td><td><code>Saturday</code></td></tr>
+          <tr><td><code>%a</code></td><td>Short weekday name</td><td><code>Sat</code></td></tr>
+          <tr><td><code>%B</code></td><td>Full month name</td><td><code>March</code></td></tr>
+          <tr><td><code>%b</code></td><td>Short month name</td><td><code>Mar</code></td></tr>
+        </table>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2 mt-4">Date Arithmetic with timedelta</p>
+        <p class="mb-3">Use <code>timedelta</code> to add or subtract durations from dates:</p>
+<pre><code>from datetime import date, datetime, timedelta
+
+today = date.today()
+
+# Add days
+tomorrow = today + timedelta(days=1)
+next_week = today + timedelta(weeks=1)
+deadline = today + timedelta(days=30)
+print(f"Deadline: {deadline}")       # 30 days from now
+
+# Subtract days
+yesterday = today - timedelta(days=1)
+last_month = today - timedelta(days=30)
+
+# Add hours/minutes to datetime
+now = datetime.now()
+in_2_hours = now + timedelta(hours=2)
+in_90_min = now + timedelta(minutes=90)
+print(f"Meeting at: {in_2_hours:%H:%M}")
+
+# Combine multiple units
+future = now + timedelta(days=5, hours=3, minutes=30)
+
+# Subtract two dates to get a timedelta
+birthday = date(2025, 12, 25)
+days_left = birthday - today
+print(f"Days until birthday: {days_left.days}")  # e.g. 285
+print(type(days_left))  # &lt;class 'datetime.timedelta'&gt;</code></pre>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2 mt-4">Comparing Dates</p>
+<pre><code>from datetime import date, datetime
+
+d1 = date(2025, 1, 1)
+d2 = date(2025, 12, 31)
+
+print(d1 &lt; d2)      # True
+print(d1 == d2)      # False
+print(d1 != d2)      # True
+
+# Sort a list of dates
+dates = [date(2025, 3, 15), date(2024, 12, 1), date(2025, 1, 20)]
+print(sorted(dates))
+# [datetime.date(2024, 12, 1), datetime.date(2025, 1, 20), datetime.date(2025, 3, 15)]</code></pre>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2 mt-4">Practical Example: Age Calculator</p>
+<pre><code>from datetime import date
+
+def calculate_age(birth_date):
+    today = date.today()
+    age = today.year - birth_date.year
+    # Subtract 1 if birthday hasn't occurred yet this year
+    if (today.month, today.day) &lt; (birth_date.month, birth_date.day):
+        age -= 1
+    return age
+
+birthday = date(2000, 5, 17)
+print(f"Age: {calculate_age(birthday)} years")   # e.g. "Age: 24 years"
+
+# Days alive
+days_alive = (date.today() - birthday).days
+print(f"Days alive: {days_alive:,}")              # e.g. "Days alive: 9,068"</code></pre>
+
+        <div class="note"><strong>Tip:</strong> The <code>datetime</code> module handles all common date/time operations. For time zones use <code>datetime.timezone</code> or the third-party <code>pytz</code>/<code>zoneinfo</code> library. For more advanced date arithmetic (e.g., &ldquo;add 1 month&rdquo;), see the <code>dateutil</code> package (<code>pip install python-dateutil</code>).</div>
       </section>
 
       <section id="exercises" class="bg-white border border-slate-200 rounded-xl p-6 mt-8 shadow-sm">

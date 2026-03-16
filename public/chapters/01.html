@@ -13,7 +13,8 @@
           <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Contrast Python's interpreted execution model with the compiled model of C++ and the JVM-based model of Java.</li>
           <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Run Python code interactively and as standalone scripts from the command line.</li>
           <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Create, activate, and manage virtual environments for dependency isolation.</li>
-          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Install third-party packages using <code>pip</code> and understand requirement files.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Install Python using the official installer, Anaconda, or Miniconda and understand the differences.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Install third-party packages using <code>pip</code> and <code>conda</code> and understand requirement files.</li>
           <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Identify the main components of a Python development workflow.</li>
         </ul>
       </section>
@@ -38,8 +39,102 @@
         <div class="note">Because Python is dynamically typed and interpreted, type errors that C++ or Java would catch at compile time only surface when the offending line is executed. This makes thorough testing especially important.</div>
       </section>
 
+      <section id="setup-environment">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">1.3 Setting Up Your Python Environment</h3>
+        <p class="mb-3">Before writing any Python code you need a working Python installation. There are three common approaches: the official CPython installer, Anaconda, and Miniconda. Each has different trade-offs in size, convenience, and target audience.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Option 1 &mdash; Official Python Installer (python.org)</h4>
+        <p class="mb-3">The simplest way to get Python is to download the installer from <strong>python.org</strong>. This gives you the standard CPython interpreter and <code>pip</code> for package management.</p>
+<pre><code># Step 1 - Download the installer from https://www.python.org/downloads/
+# Step 2 - Run the installer
+#   IMPORTANT: Check "Add python.exe to PATH" during installation (Windows)
+# Step 3 - Verify
+python --version
+# Python 3.12.x
+
+pip --version
+# pip 24.x from ...</code></pre>
+        <p class="mb-3">This option is lightweight and gives you a clean, minimal setup. You manage virtual environments with the built-in <code>venv</code> module and install packages with <code>pip</code>.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Option 2 &mdash; Anaconda</h4>
+        <p class="mb-3">Anaconda is a full-featured data science distribution. It ships with Python, <code>conda</code> (its own package and environment manager), and over 250 pre-installed scientific packages including NumPy, Pandas, Matplotlib, Jupyter, and Scikit-learn.</p>
+<pre><code># Download from https://www.anaconda.com/download
+# Run the graphical installer
+# After installation, verify:
+conda --version
+# conda 24.x.x
+
+python --version
+# Python 3.12.x
+
+# List pre-installed packages (there are hundreds)
+conda list | head -20</code></pre>
+        <p class="mb-3">Anaconda is convenient because everything is pre-installed, but the download is large (~800 MB) and you may not need most of the bundled packages.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Option 3 &mdash; Miniconda (Recommended for This Course)</h4>
+        <p class="mb-3">Miniconda is a minimal installer that includes only Python, <code>conda</code>, and their dependencies. It gives you the power of <code>conda</code> for environment and package management without the bloat of Anaconda. You install only what you need.</p>
+<pre><code># Download from https://docs.anaconda.com/miniconda/
+# Run the installer
+# After installation, verify:
+conda --version
+python --version</code></pre>
+
+        <div class="note" style="border-left-color: #f59e0b; background: #fffbeb; color: #92400e;"><strong>&#9888; Course Note:</strong> Throughout this course we rely heavily on <strong>Miniconda</strong> as our primary Python distribution. It provides the <code>conda</code> environment manager which makes it easy to create isolated environments, install scientific packages with compiled dependencies (NumPy, Pandas, etc.), and reproduce setups across different machines. All examples and instructions assume <code>conda</code> is available.</div>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Managing Environments with Conda</h4>
+        <p class="mb-3">The <code>conda</code> command replaces both <code>venv</code> and <code>pip</code> for environment and package management:</p>
+<pre><code># Create a new environment with a specific Python version
+conda create --name myproject python=3.12
+
+# Activate the environment
+conda activate myproject
+
+# Install packages (conda resolves binary dependencies automatically)
+conda install numpy pandas matplotlib jupyter
+
+# You can still use pip inside a conda environment
+pip install requests
+
+# List installed packages
+conda list
+
+# Export environment to a file (for reproducibility)
+conda env export > environment.yml
+
+# Recreate environment from file on another machine
+conda env create -f environment.yml
+
+# Deactivate
+conda deactivate
+
+# Remove an environment entirely
+conda env remove --name myproject</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Comparison</h4>
+        <div class="comparison">
+          <div>
+            <h4>python.org Installer</h4>
+            <p>Minimal (~30 MB). Uses <code>pip</code> + <code>venv</code>. Best for lightweight scripting or web development.</p>
+          </div>
+          <div>
+            <h4>Anaconda</h4>
+            <p>Full bundle (~800 MB). 250+ packages pre-installed. Includes GUI (Anaconda Navigator). Best if you want everything ready out of the box.</p>
+          </div>
+        </div>
+        <div class="comparison">
+          <div>
+            <h4>Miniconda &#9733;</h4>
+            <p>Lightweight (~80 MB). Uses <code>conda</code> for environments &amp; packages. Install only what you need. <strong>Recommended for this course.</strong></p>
+          </div>
+          <div>
+            <h4>Key Difference: pip vs. conda</h4>
+            <p><code>pip</code> installs Python-only packages from PyPI. <code>conda</code> installs packages with compiled C/Fortran dependencies (e.g., NumPy, SciPy) from the Anaconda repository, handling binary compatibility automatically.</p>
+          </div>
+        </div>
+      </section>
+
       <section id="running-python">
-        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">1.3 Running Python Code</h3>
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">1.4 Running Python Code</h3>
         <p class="mb-3">Python code can be executed in two modes: interactive (REPL) and script-based.</p>
         <h4 class="font-semibold text-slate-800 mt-4 mb-2">Interactive Mode (REPL)</h4>
         <p class="mb-3">The Read-Eval-Print Loop is launched by typing <code>python</code> in a terminal. Each expression is evaluated immediately, making it ideal for exploration and debugging.</p>
@@ -54,17 +149,182 @@ import sys
 
 print(f"Python version: {sys.version}")
 print("Script execution complete.")</code></pre>
-        <h4 class="font-semibold text-slate-800 mt-4 mb-2">The <code>if __name__ == "__main__"</code> Guard</h4>
-        <p class="mb-3">When a module is run directly, Python sets its <code>__name__</code> attribute to <code>"__main__"</code>. This guard prevents code from executing when the file is imported as a module.</p>
-<pre><code>def greet(name):
-    return f"Hello, {name}"
+      </section>
+
+      <section id="name-guard">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">1.5 The <code>__name__</code> Variable and the <code>__main__</code> Guard</h3>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">What Is <code>__name__</code>?</h4>
+        <p class="mb-3">Every Python file (module) has a built-in variable called <code>__name__</code>. Python sets its value automatically depending on <em>how</em> the file is being used:</p>
+        <ul class="space-y-2 text-sm text-slate-700 mb-3">
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>If the file is <strong>run directly</strong> (e.g., <code>python myfile.py</code>), Python sets <code>__name__</code> to the string <code>"__main__"</code>.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>If the file is <strong>imported</strong> by another file (e.g., <code>import myfile</code>), Python sets <code>__name__</code> to the module's name &mdash; in this case <code>"myfile"</code>.</li>
+        </ul>
+        <p class="mb-3">You can verify this yourself:</p>
+<pre><code># check_name.py
+print(f"__name__ = {__name__}")</code></pre>
+<pre><code># Run directly:
+# $ python check_name.py
+# __name__ = __main__
+
+# Import from another file:
+# >>> import check_name
+# __name__ = check_name</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">The Problem: Unwanted Code Execution on Import</h4>
+        <p class="mb-3">Imagine you write a utility file with useful functions <em>and</em> some code that uses those functions for testing or demonstration. When another file imports your module to reuse the functions, <strong>all the top-level code runs too</strong>, which is not what you want.</p>
+        <p class="mb-3">Consider this example with two files:</p>
+<pre><code># math_utils.py  &mdash;  A utility module
+
+def add(a, b):
+    return a + b
+
+def multiply(a, b):
+    return a * b
+
+# Some test code we wrote while developing
+print("Testing math_utils...")
+print(f"add(2, 3) = {add(2, 3)}")
+print(f"multiply(4, 5) = {multiply(4, 5)}")
+print("All tests passed!")</code></pre>
+<pre><code># app.py  &mdash;  Our main application
+import math_utils
+
+result = math_utils.add(10, 20)
+print(f"Result: {result}")</code></pre>
+        <p class="mb-3">When you run <code>python app.py</code>, the output is:</p>
+<pre><code>Testing math_utils...
+add(2, 3) = 5
+multiply(4, 5) = 20
+All tests passed!
+Result: 30</code></pre>
+        <p class="mb-3">The test output from <code>math_utils.py</code> leaks into your application! This happens because Python executes <em>every line</em> in a module when it is imported.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">The Solution: <code>if __name__ == "__main__"</code></h4>
+        <p class="mb-3">Wrap any code that should only run when the file is executed directly &mdash; not when imported &mdash; inside this guard:</p>
+<pre><code># math_utils.py  &mdash;  Fixed with __name__ guard
+
+def add(a, b):
+    return a + b
+
+def multiply(a, b):
+    return a * b
 
 if __name__ == "__main__":
-    print(greet("Engineer"))</code></pre>
+    # This block ONLY runs when you do: python math_utils.py
+    # It does NOT run when another file does: import math_utils
+    print("Testing math_utils...")
+    print(f"add(2, 3) = {add(2, 3)}")
+    print(f"multiply(4, 5) = {multiply(4, 5)}")
+    print("All tests passed!")</code></pre>
+        <p class="mb-3">Now when you run <code>python app.py</code>:</p>
+<pre><code>Result: 30</code></pre>
+        <p class="mb-3">Clean! Only your application output. But you can still run <code>python math_utils.py</code> directly to see the test output:</p>
+<pre><code>Testing math_utils...
+add(2, 3) = 5
+multiply(4, 5) = 20
+All tests passed!</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">How It Works</h4>
+        <div class="comparison">
+          <div>
+            <h4><code>python math_utils.py</code></h4>
+            <p><code>__name__</code> is set to <code>"__main__"</code><br>The guard condition is <code>True</code><br>Test code <strong>runs</strong></p>
+          </div>
+          <div>
+            <h4><code>import math_utils</code></h4>
+            <p><code>__name__</code> is set to <code>"math_utils"</code><br>The guard condition is <code>False</code><br>Test code is <strong>skipped</strong></p>
+          </div>
+        </div>
+
+        <div class="note"><strong>Best Practice:</strong> Always use the <code>if __name__ == "__main__"</code> guard in any Python file that could be both run directly and imported. This is a fundamental Python pattern you will see in virtually every well-structured project.</div>
+      </section>
+
+      <section id="ipython">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">1.6 IPython &mdash; The Enhanced Interactive Shell</h3>
+        <p class="mb-3">While the default Python REPL is functional, it is minimal. <code>IPython</code> (Interactive Python) is a powerful replacement that adds features every developer will appreciate: syntax highlighting, tab completion, inline help, magic commands, and much more. It is the same kernel that powers Jupyter notebooks.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Installation</h4>
+        <p class="mb-3">IPython is a third-party package installed via <code>pip</code>. It is recommended to install it inside a virtual environment.</p>
+<pre><code># Install IPython
+pip install ipython
+
+# Launch it
+ipython</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Key Features</h4>
+        <p class="mb-3">Once inside the IPython shell you immediately notice several enhancements over the standard REPL:</p>
+
+        <p class="font-semibold text-slate-800 mb-2">1. Syntax Highlighting and Smart Indentation</p>
+        <p class="mb-3">Code is color-highlighted as you type, making it far easier to spot errors and read complex expressions.</p>
+<pre><code>In [1]: def factorial(n):
+   ...:     if n <= 1:
+   ...:         return 1
+   ...:     return n * factorial(n - 1)
+   ...: 
+
+In [2]: factorial(10)
+Out[2]: 3628800</code></pre>
+
+        <p class="font-semibold text-slate-800 mb-2">2. Tab Completion</p>
+        <p class="mb-3">Press <code>Tab</code> after a partial name to auto-complete variables, functions, methods, file paths, and even dictionary keys.</p>
+<pre><code>In [3]: import os
+In [4]: os.path.&lt;Tab&gt;
+# Shows: os.path.join, os.path.exists, os.path.dirname, ...</code></pre>
+
+        <p class="font-semibold text-slate-800 mb-2">3. Inline Help with <code>?</code> and <code>??</code></p>
+        <p class="mb-3">Append <code>?</code> to any object to see its docstring. Use <code>??</code> to see the full source code.</p>
+<pre><code>In [5]: len?
+# Signature: len(obj, /)
+# Docstring: Return the number of items in a container.
+
+In [6]: factorial??
+# Shows the full source code of your function</code></pre>
+
+        <p class="font-semibold text-slate-800 mb-2">4. Magic Commands</p>
+        <p class="mb-3">IPython provides special commands prefixed with <code>%</code> (line magic) or <code>%%</code> (cell magic) for common tasks:</p>
+<pre><code># Time a single statement
+In [7]: %timeit sum(range(10000))
+# 112 µs ± 1.2 µs per loop
+
+# Run an external script
+In [8]: %run my_script.py
+
+# List all variables in the namespace
+In [9]: %whos
+Variable   Type      Data/Info
+-------------------------------
+factorial  function  &lt;function factorial at 0x...&gt;
+
+# Change directory
+In [10]: %cd /path/to/project
+
+# Command history
+In [11]: %history -n 1-5</code></pre>
+
+        <p class="font-semibold text-slate-800 mb-2">5. Shell Integration</p>
+        <p class="mb-3">Prefix any line with <code>!</code> to run it as a system shell command directly from IPython.</p>
+<pre><code>In [12]: !pip list | head -5
+In [13]: files = !ls *.py
+In [14]: print(files)
+# ['main.py', 'utils.py', 'test_app.py']</code></pre>
+
+        <p class="font-semibold text-slate-800 mb-2">6. Input/Output History</p>
+        <p class="mb-3">IPython stores every input and output. Access previous results using <code>In[n]</code> and <code>Out[n]</code>, or use <code>_</code> for the last output.</p>
+<pre><code>In [15]: 2 ** 10
+Out[15]: 1024
+
+In [16]: _ * 2
+Out[16]: 2048
+
+In [17]: Out[15]
+Out[17]: 1024</code></pre>
+
+        <div class="note">IPython is an excellent tool for exploration, quick debugging, and learning. Many experienced Python developers use <code>ipython</code> as their default interactive shell instead of the plain <code>python</code> REPL.</div>
       </section>
 
       <section id="virtual-environments">
-        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">1.4 Virtual Environments and Package Management</h3>
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">1.7 Virtual Environments and Package Management</h3>
         <p class="mb-3">A virtual environment is an isolated directory tree that contains a specific Python interpreter and a set of installed packages. This prevents version conflicts between projects.</p>
 <pre><code># Create a virtual environment
 python -m venv myenv
@@ -87,7 +347,7 @@ pip install -r requirements.txt</code></pre>
       </section>
 
       <section id="workflow">
-        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">1.5 Development Workflow Overview</h3>
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">1.8 Development Workflow Overview</h3>
         <p class="mb-3">A typical Python development cycle involves the following steps:</p>
         <ol class="list-decimal list-inside space-y-1 text-slate-700 mb-3">
           <li><strong>Explore</strong> &#8212; Use the REPL to test small ideas and examine APIs.</li>

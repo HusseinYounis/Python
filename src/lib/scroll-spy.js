@@ -7,6 +7,15 @@ export function initScrollSpy() {
     const id = link.getAttribute('href').slice(1);
     const section = document.getElementById(id);
     if (section) sections.push({ el: section, link });
+
+    // Intercept clicks to scroll instead of changing the hash
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.getElementById(id);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
   });
 
   function onScroll() {

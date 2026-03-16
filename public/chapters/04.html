@@ -7,165 +7,765 @@
       <section id="outcomes" class="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
         <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Learning Outcomes</h2>
         <ul class="space-y-2 text-sm text-slate-700">
-          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Define functions using <code>def</code> and <code>lambda</code>.</li>
-          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use positional, keyword, default, <code>*args</code>, and <code>**kwargs</code> parameters.</li>
-          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Explain the LEGB scope resolution rule.</li>
-          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Create closures and higher-order functions.</li>
-          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Add type hints and docstrings for documentation.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Define functions and understand how Python differs from C++ in return types, argument types, and duck typing.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use positional, keyword, default, <code>*args</code>, <code>**kwargs</code>, keyword-only, and positional-only parameters.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Explain the LEGB scope resolution rule, <code>global</code>, <code>nonlocal</code>, and the UnboundLocalError trap.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Write lambda expressions and use them with <code>sorted()</code>, <code>map()</code>, and <code>filter()</code>.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Create closures, higher-order functions, and understand decorators.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Add type hints, enforce types at runtime with <code>isinstance()</code>, and use <code>mypy</code> for static checking.</li>
         </ul>
       </section>
 
       <section id="defining-functions">
         <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4">4.1 Defining Functions</h3>
-        <p class="mb-3">Functions are first-class objects in Python. Unlike C++/Java, they are defined at runtime and can be assigned to variables, stored in data structures, and passed as arguments.</p>
-<pre><code>def greet(name: str) -> str:
+        <p class="mb-3">Functions are <strong>first-class objects</strong> in Python. Unlike C++/Java, they are defined at runtime, require no type declarations, and can be assigned to variables, stored in data structures, and passed as arguments.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Basic Function Definition</h4>
+<pre><code>def greet(name):
     """Return a greeting string."""
     return f"Hello, {name}!"
 
-# Functions are objects
+print(greet("World"))      # Hello, World!
+print(greet(42))           # Hello, 42!   — no type restriction
+print(type(greet))         # &lt;class 'function'&gt;</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Python vs C++ &mdash; No Return Type, No Argument Types</h4>
+        <p class="mb-3">In C++, you <strong>must</strong> declare the return type and the type of every parameter. In Python, there are <strong>no type declarations</strong> — a function can accept any type and return any type:</p>
+
+        <div class="comparison-grid">
+            <div class="comparison-block">
+            <h4>C++ &mdash; Strict Types Required</h4>
+<pre><code>// Must declare return type and param types
+int add(int a, int b) {
+    return a + b;
+}
+
+// Overload for different types
+double add(double a, double b) {
+    return a + b;
+}
+
+// Won't compile: add("hello", "world")
+string add(string a, string b) {
+    return a + b;
+}</code></pre>
+            </div>
+            <div class="comparison-block">
+            <h4>Python &mdash; No Types Needed</h4>
+<pre><code># No return type, no param types
+def add(a, b):
+    return a + b
+
+# Same function works with ANY type:
+print(add(3, 5))           # 8 (int)
+print(add(1.5, 2.5))       # 4.0 (float)
+print(add("hi ", "there")) # "hi there" (str)
+print(add([1, 2], [3, 4])) # [1, 2, 3, 4] (list)
+
+# This is called "duck typing":
+# if it supports +, it works!</code></pre>
+            </div>
+        </div>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Functions Can Return Different Types</h4>
+        <p class="mb-3">A single Python function can return different types depending on the input — impossible in C++ without templates or <code>std::variant</code>:</p>
+<pre><code>def smart_divide(a, b):
+    if b == 0:
+        return None          # NoneType
+    result = a / b
+    if result == int(result):
+        return int(result)   # int
+    return result            # float
+
+print(smart_divide(10, 3))   # 3.3333...  (float)
+print(smart_divide(10, 2))   # 5          (int)
+print(smart_divide(10, 0))   # None       (NoneType)
+print(type(smart_divide(10, 0)))  # &lt;class 'NoneType'&gt;</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Multiple Return Values</h4>
+        <p class="mb-3">Python functions can return multiple values as a tuple — no need for output parameters or structs like in C++:</p>
+<pre><code>def divide_and_remainder(a, b):
+    return a // b, a % b   # returns a tuple
+
+quotient, remainder = divide_and_remainder(17, 5)
+print(quotient)    # 3
+print(remainder)   # 2
+
+# In C++ you would need:
+# pair&lt;int,int&gt; divide(int a, int b) { return {a/b, a%b}; }
+# Or use output parameters: void divide(int a, int b, int&amp; q, int&amp; r)</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Functions as Objects</h4>
+        <p class="mb-3">Since functions are objects, you can assign them to variables, put them in lists, and pass them around:</p>
+<pre><code># Assign to a variable
 say_hello = greet
-print(say_hello("World"))  # Hello, World!</code></pre>
-        <div class="note">Python functions always return a value. If no <code>return</code> is given, the function returns <code>None</code>.</div>
+print(say_hello("Alice"))   # Hello, Alice!
+
+# Store in a data structure
+operations = {
+    "add": lambda a, b: a + b,
+    "sub": lambda a, b: a - b,
+    "mul": lambda a, b: a * b,
+}
+print(operations["add"](10, 3))   # 13
+
+# Pass as argument
+def apply_twice(func, value):
+    return func(func(value))
+
+print(apply_twice(lambda x: x * 2, 3))   # 12  (3→6→12)</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">No <code>return</code> &rarr; Returns <code>None</code></h4>
+<pre><code>def say_hi(name):
+    print(f"Hi, {name}")
+    # no return statement
+
+result = say_hi("Bob")    # prints "Hi, Bob"
+print(result)              # None
+print(type(result))        # &lt;class 'NoneType'&gt;</code></pre>
+        <div class="note"><strong>C++ comparison:</strong> In C++ a non-<code>void</code> function must return a value (or it's undefined behavior). In Python, every function returns something — <code>None</code> by default. There is no <code>void</code> keyword.</div>
       </section>
 
       <section id="parameters">
         <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">4.2 Parameter Types</h3>
-<pre><code># Positional and keyword arguments
-def connect(host, port=3306, timeout=30):
+        <p class="mb-3">Python offers far more flexible parameter passing than C++. Here's the complete picture:</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Positional and Keyword Arguments</h4>
+<pre><code>def connect(host, port, timeout):
     print(f"Connecting to {host}:{port} (timeout={timeout}s)")
 
-connect("db.server.com")                   # positional
-connect("db.server.com", port=5432)         # keyword
-connect("db.server.com", timeout=10)        # keyword
+# All positional
+connect("db.server.com", 3306, 30)
 
-# Variable positional (*args)
-def total(*values):
+# Mix positional and keyword
+connect("db.server.com", port=5432, timeout=10)
+
+# All keyword (any order)
+connect(timeout=10, host="db.server.com", port=5432)
+
+# Error: positional argument after keyword
+# connect(host="db.server.com", 5432, 30)  # SyntaxError</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Default Parameter Values</h4>
+<pre><code>def connect(host, port=3306, timeout=30):
+    print(f"Connecting to {host}:{port} (timeout={timeout}s)")
+
+connect("db.server.com")                    # uses defaults: 3306, 30
+connect("db.server.com", 5432)              # port=5432, timeout=30
+connect("db.server.com", timeout=10)        # port=3306, timeout=10</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Variable Positional: <code>*args</code></h4>
+        <p class="mb-3">Collects extra positional arguments into a <strong>tuple</strong>:</p>
+<pre><code>def total(*values):
+    print(type(values))   # &lt;class 'tuple'&gt;
     return sum(values)
-print(total(1, 2, 3, 4))   # 10
 
-# Variable keyword (**kwargs)
-def build_config(**kwargs):
-    return {k: v for k, v in kwargs.items()}
-print(build_config(debug=True, port=8080))</code></pre>
+print(total(1, 2, 3))        # 6
+print(total(10, 20, 30, 40)) # 100
+print(total())                # 0
+
+# Practical: flexible print wrapper
+def log(level, *messages):
+    for msg in messages:
+        print(f"[{level}] {msg}")
+
+log("INFO", "Server started", "Listening on port 8080")</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Variable Keyword: <code>**kwargs</code></h4>
+        <p class="mb-3">Collects extra keyword arguments into a <strong>dictionary</strong>:</p>
+<pre><code>def build_config(**kwargs):
+    print(type(kwargs))   # &lt;class 'dict'&gt;
+    for key, value in kwargs.items():
+        print(f"  {key} = {value}")
+
+build_config(debug=True, port=8080, host="localhost")
+# debug = True
+# port = 8080
+# host = localhost
+
+# Practical: flexible object creation
+def create_student(**info):
+    return info
+
+student = create_student(name="Ali", gpa=3.8, major="CS")
+print(student)  # {'name': 'Ali', 'gpa': 3.8, 'major': 'CS'}</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Combining All Parameter Types</h4>
+        <p class="mb-3">The order matters: positional &rarr; <code>*args</code> &rarr; keyword-only &rarr; <code>**kwargs</code></p>
+<pre><code>def mega_func(a, b, *args, option=True, **kwargs):
+    print(f"a={a}, b={b}")
+    print(f"args={args}")
+    print(f"option={option}")
+    print(f"kwargs={kwargs}")
+
+mega_func(1, 2, 3, 4, 5, option=False, x=10, y=20)
+# a=1, b=2
+# args=(3, 4, 5)
+# option=False
+# kwargs={'x': 10, 'y': 20}</code></pre>
+
         <h4 class="font-semibold text-slate-800 mt-4 mb-2">Keyword-Only and Positional-Only Parameters</h4>
-<pre><code># Keyword-only (after *)
+<pre><code># Keyword-only: parameters after * must be passed by name
 def safe_div(a, b, *, round_digits=2):
     return round(a / b, round_digits)
 
-# Positional-only (before /)  (Python 3.8+)
+safe_div(10, 3, round_digits=4)   # OK: 3.3333
+# safe_div(10, 3, 4)              # TypeError: positional arg not allowed
+
+# Positional-only: parameters before / must be passed by position (3.8+)
 def power(base, exp, /):
-    return base ** exp</code></pre>
-        <div class="note"><strong>Mutable Default Argument Trap:</strong> Never use a mutable object (list, dict) as a default parameter value. Use <code>None</code> and create the object inside the function body.</div>
-<pre><code># WRONG - the list is shared across all calls
+    return base ** exp
+
+power(2, 10)        # OK: 1024
+# power(base=2, exp=10)  # TypeError: keyword arg not allowed
+
+# Combine both: positional-only / normal * keyword-only
+def search(data, /, target, *, case_sensitive=True):
+    pass
+# data is positional-only, target is normal, case_sensitive is keyword-only</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Unpacking Arguments with <code>*</code> and <code>**</code></h4>
+<pre><code>def point(x, y, z):
+    print(f"({x}, {y}, {z})")
+
+# Unpack a list/tuple into positional args
+coords = [1, 2, 3]
+point(*coords)           # (1, 2, 3)
+
+# Unpack a dict into keyword args
+config = {"x": 10, "y": 20, "z": 30}
+point(**config)          # (10, 20, 30)
+
+# Combine
+args = [1, 2]
+kwargs = {"z": 3}
+point(*args, **kwargs)   # (1, 2, 3)</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">The Mutable Default Trap</h4>
+        <div class="note"><strong>Warning:</strong> Never use a mutable object (list, dict, set) as a default parameter — it is shared across all calls!</div>
+<pre><code># BUG — the list persists between calls
 def append_to(item, target=[]):
     target.append(item)
     return target
 
-# CORRECT
+print(append_to(1))   # [1]
+print(append_to(2))   # [1, 2]   — BUG! Expected [2]
+print(append_to(3))   # [1, 2, 3] — keeps growing!
+
+# FIX — use None as sentinel
 def append_to(item, target=None):
     if target is None:
         target = []
     target.append(item)
-    return target</code></pre>
+    return target
+
+print(append_to(1))   # [1]
+print(append_to(2))   # [2]  — correct!</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">C++ vs Python Parameter Comparison</h4>
+        <table>
+          <tr><th>Feature</th><th>C++</th><th>Python</th></tr>
+          <tr><td>Type declarations</td><td>Required</td><td>Optional (type hints)</td></tr>
+          <tr><td>Default values</td><td>Yes (rightmost only)</td><td>Yes (any position)</td></tr>
+          <tr><td>Keyword arguments</td><td>No</td><td>Yes</td></tr>
+          <tr><td>Variable args</td><td>Variadic templates / <code>va_list</code></td><td><code>*args</code>, <code>**kwargs</code></td></tr>
+          <tr><td>Pass by reference</td><td><code>int&amp; x</code></td><td>Always pass by object reference</td></tr>
+          <tr><td>Overloading</td><td>Yes (by signature)</td><td>No (use default/args)</td></tr>
+          <tr><td>Return type</td><td>Must declare</td><td>Optional hint only</td></tr>
+        </table>
       </section>
 
       <section id="scope">
         <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">4.3 Scope and the LEGB Rule</h3>
-        <p class="mb-3">Python resolves names using the <strong>LEGB</strong> order: <strong>L</strong>ocal → <strong>E</strong>nclosing → <strong>G</strong>lobal → <strong>B</strong>uilt-in.</p>
-<pre><code>x = "global"
+        <p class="mb-3">Python resolves variable names using the <strong>LEGB</strong> search order:</p>
+        <ul class="list-disc list-inside space-y-1 text-slate-700 mb-3">
+          <li><strong>L</strong>ocal &mdash; names defined inside the current function</li>
+          <li><strong>E</strong>nclosing &mdash; names in enclosing (outer) function scopes</li>
+          <li><strong>G</strong>lobal &mdash; names defined at module (file) level</li>
+          <li><strong>B</strong>uilt-in &mdash; names in the <code>builtins</code> module (<code>print</code>, <code>len</code>, etc.)</li>
+        </ul>
+<pre><code>x = "global"       # G
 
 def outer():
-    x = "enclosing"
+    x = "enclosing"  # E
     def inner():
-        x = "local"
-        print(x)          # local
+        x = "local"   # L
+        print(x)       # → "local" (found in L)
     inner()
-    print(x)              # enclosing
+    print(x)           # → "enclosing" (found in E)
 
 outer()
-print(x)                  # global</code></pre>
-        <h4 class="font-semibold text-slate-800 mt-4 mb-2">global and nonlocal</h4>
-<pre><code>counter = 0
+print(x)               # → "global" (found in G)</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Visualizing LEGB</h4>
+<pre><code># Python searches in this order: L → E → G → B
+name = "global"          # Global scope
+
+def outer():
+    name = "enclosing"   # Enclosing scope
+    def inner():
+        # name = "local" # If uncommented → Local scope wins
+        print(name)      # Searches L(not found) → E(found!) → "enclosing"
+    inner()
+
+outer()
+print(len("hello"))      # len is found in B (Built-in scope)</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2"><code>global</code> and <code>nonlocal</code></h4>
+        <p class="mb-3">To <strong>modify</strong> a variable in an outer scope (not just read it), you need explicit keywords:</p>
+<pre><code># global — modify a module-level variable
+counter = 0
+
 def increment():
-    global counter
+    global counter   # without this: UnboundLocalError
     counter += 1
 
+increment()
+increment()
+print(counter)   # 2
+
+# nonlocal — modify a variable in the enclosing function
 def make_counter():
     count = 0
     def inc():
-        nonlocal count
+        nonlocal count   # without this: UnboundLocalError
         count += 1
         return count
-    return inc</code></pre>
+    return inc
+
+c = make_counter()
+print(c())   # 1
+print(c())   # 2
+print(c())   # 3</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">The UnboundLocalError Trap</h4>
+<pre><code>x = 10
+
+def broken():
+    print(x)   # UnboundLocalError!
+    x = 20     # This assignment makes Python treat x as local
+               # throughout the ENTIRE function, even above this line
+
+def fixed():
+    global x
+    print(x)   # 10
+    x = 20     # Now modifies the global</code></pre>
+        <div class="note"><strong>C++ comparison:</strong> C++ uses block scope with <code>{}</code>. Variables are visible from declaration to the end of the block. Python has only function, module, and built-in scopes — there is no block scope (loops and if-statements do NOT create a new scope).</div>
+<pre><code># No block scope in Python!
+for i in range(5):
+    message = "inside loop"
+
+print(i)          # 4 — still accessible!
+print(message)    # "inside loop" — still accessible!
+
+# In C++ these would be out of scope</code></pre>
       </section>
 
       <section id="lambda">
         <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">4.4 Lambda Expressions</h3>
-        <p class="mb-3">Lambda creates small anonymous functions. They are limited to a single expression.</p>
-<pre><code># Sort by second element
-pairs = [(1, "b"), (3, "a"), (2, "c")]
-pairs.sort(key=lambda p: p[1])
-print(pairs)  # [(3, 'a'), (1, 'b'), (2, 'c')]
+        <p class="mb-3">Lambda creates small <strong>anonymous</strong> (unnamed) functions limited to a <strong>single expression</strong>. They are commonly used as quick callbacks for <code>sorted()</code>, <code>map()</code>, <code>filter()</code>, etc.</p>
 
-# Equivalent to Java lambda:  (p) -> p[1]
-# Equivalent to C++ lambda:   [](auto p){ return p.second; }</code></pre>
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Syntax</h4>
+<pre><code># lambda parameters: expression
+# Equivalent to:
+# def func(parameters):
+#     return expression
+
+square = lambda x: x ** 2
+print(square(5))   # 25
+
+add = lambda a, b: a + b
+print(add(3, 7))   # 10
+
+# Lambda with no arguments
+greet = lambda: "Hello!"
+print(greet())   # "Hello!"</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Common Use: Sorting</h4>
+<pre><code># Sort list of tuples by second element
+pairs = [(1, "banana"), (3, "apple"), (2, "cherry")]
+pairs.sort(key=lambda p: p[1])
+print(pairs)   # [(3, 'apple'), (1, 'banana'), (2, 'cherry')]
+
+# Sort students by GPA (descending)
+students = [("Ali", 3.5), ("Sara", 3.9), ("Omar", 3.7)]
+ranked = sorted(students, key=lambda s: s[1], reverse=True)
+print(ranked)  # [('Sara', 3.9), ('Omar', 3.7), ('Ali', 3.5)]
+
+# Sort strings by length
+words = ["python", "is", "awesome", "and", "powerful"]
+print(sorted(words, key=lambda w: len(w)))
+# ['is', 'and', 'python', 'awesome', 'powerful']</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Lambda with <code>map()</code> and <code>filter()</code></h4>
+<pre><code>numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+# Double each number
+doubled = list(map(lambda x: x * 2, numbers))
+print(doubled)   # [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+
+# Keep only even numbers
+evens = list(filter(lambda x: x % 2 == 0, numbers))
+print(evens)   # [2, 4, 6, 8, 10]
+
+# Combine: double the even numbers
+result = list(map(lambda x: x * 2, filter(lambda x: x % 2 == 0, numbers)))
+print(result)   # [4, 8, 12, 16, 20]
+
+# Same as comprehension (often clearer)
+result = [x * 2 for x in numbers if x % 2 == 0]</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Lambda with Conditional Expression</h4>
+<pre><code># Ternary inside lambda
+classify = lambda x: "even" if x % 2 == 0 else "odd"
+print(classify(4))   # "even"
+print(classify(7))   # "odd"
+
+# Absolute value (manual implementation)
+abs_val = lambda x: x if x >= 0 else -x
+print(abs_val(-5))   # 5</code></pre>
+
+        <div class="comparison-grid">
+            <div class="comparison-block">
+            <h4>C++ Lambda</h4>
+<pre><code>auto sq = [](int x) -> int {
+    return x * x;
+};
+// Must specify capture, params,
+// return type, use {}</code></pre>
+            </div>
+            <div class="comparison-block">
+            <h4>Python Lambda</h4>
+<pre><code>sq = lambda x: x * x
+
+# No type needed, single expr,
+# captures all by default</code></pre>
+            </div>
+        </div>
+
+        <div class="note"><strong>When NOT to use lambda:</strong> If the function needs multiple lines, <code>try/except</code>, loops, or is reused elsewhere, use a regular <code>def</code> instead. Assigning a lambda to a variable (<code>f = lambda ...</code>) is discouraged — just use <code>def f(...):</code>.</div>
       </section>
 
       <section id="closures">
         <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">4.5 Closures and Higher-Order Functions</h3>
+        <p class="mb-3">A <strong>closure</strong> is a function that remembers variables from the enclosing scope even after that scope has finished executing. A <strong>higher-order function</strong> is a function that takes a function as an argument or returns a function.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Closures</h4>
 <pre><code>def make_multiplier(factor):
     """Return a function that multiplies by factor."""
     def multiplier(x):
-        return x * factor
+        return x * factor   # 'factor' is captured from enclosing scope
     return multiplier
 
 double = make_multiplier(2)
 triple = make_multiplier(3)
-print(double(5))   # 10
-print(triple(5))   # 15</code></pre>
+
+print(double(5))    # 10
+print(triple(5))    # 15
+print(double(100))  # 200
+
+# The closure remembers 'factor' even after make_multiplier() returned
+print(double.__closure__[0].cell_contents)   # 2</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Practical Closure: Logger</h4>
+<pre><code>def make_logger(prefix):
+    def log(message):
+        print(f"[{prefix}] {message}")
+    return log
+
+info = make_logger("INFO")
+error = make_logger("ERROR")
+
+info("Server started")     # [INFO] Server started
+error("Disk full")         # [ERROR] Disk full</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Higher-Order Functions</h4>
+        <p class="mb-3">Functions that take other functions as arguments:</p>
+<pre><code>def apply(func, value):
+    """Apply a function to a value."""
+    return func(value)
+
+print(apply(abs, -42))             # 42
+print(apply(str.upper, "hello"))   # "HELLO"
+print(apply(lambda x: x ** 2, 5)) # 25
+
+# Apply a function to each element
+def apply_to_each(func, items):
+    return [func(item) for item in items]
+
+print(apply_to_each(str.upper, ["hello", "world"]))
+# ['HELLO', 'WORLD']</code></pre>
+
         <h4 class="font-semibold text-slate-800 mt-4 mb-2">Built-in Higher-Order Functions</h4>
 <pre><code>nums = [1, 2, 3, 4, 5]
 
-squared = list(map(lambda x: x**2, nums))       # [1, 4, 9, 16, 25]
-evens = list(filter(lambda x: x % 2 == 0, nums)) # [2, 4]
+# map — apply function to each element
+squared = list(map(lambda x: x ** 2, nums))
+print(squared)   # [1, 4, 9, 16, 25]
 
+# filter — keep elements where function returns True
+evens = list(filter(lambda x: x % 2 == 0, nums))
+print(evens)   # [2, 4]
+
+# reduce — accumulate a result
 from functools import reduce
-total = reduce(lambda a, b: a + b, nums)          # 15</code></pre>
+total = reduce(lambda a, b: a + b, nums)
+print(total)   # 15
+
+# Practical: find the longest word
+words = ["Python", "is", "awesome"]
+longest = reduce(lambda a, b: a if len(a) >= len(b) else b, words)
+print(longest)   # "awesome"</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Decorators (Preview)</h4>
+        <p class="mb-3">Decorators are closures that wrap functions — a very common Python pattern:</p>
+<pre><code>def timer(func):
+    import time
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        elapsed = time.time() - start
+        print(f"{func.__name__} took {elapsed:.4f}s")
+        return result
+    return wrapper
+
+@timer   # equivalent to: slow_sum = timer(slow_sum)
+def slow_sum(n):
+    return sum(range(n))
+
+slow_sum(1_000_000)   # "slow_sum took 0.0312s"</code></pre>
+        <div class="note">Decorators are covered in depth in a later chapter. This is a preview to show that closures are the foundation of many Python patterns.</div>
       </section>
 
       <section id="type-hints">
-        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">4.6 Type Hints and Docstrings</h3>
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">4.6 Type Hints and Enforcing Types</h3>
+        <p class="mb-3">Python is <strong>dynamically typed</strong> — types are checked at <strong>runtime</strong>, not compile time. But Python 3.5+ introduced <strong>type hints</strong> (annotations) that let you document expected types without changing runtime behavior.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Python vs C++ &mdash; Type Philosophy</h4>
+        <div class="comparison-grid">
+            <div class="comparison-block">
+            <h4>C++ &mdash; Static Typing</h4>
+<pre><code>// Types checked at COMPILE time
+int add(int a, int b) {
+    return a + b;
+}
+
+// Won't compile:
+// add("hello", "world");
+// add(1.5, 2.5);  // narrowing</code></pre>
+            </div>
+            <div class="comparison-block">
+            <h4>Python &mdash; Dynamic Typing</h4>
+<pre><code># Types checked at RUNTIME (if at all)
+def add(a, b):
+    return a + b
+
+# All valid — no compiler to stop you:
+add(3, 5)             # 8
+add("hello", "world") # "helloworld"
+add(1.5, 2.5)         # 4.0</code></pre>
+            </div>
+        </div>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Basic Type Hints (Annotations)</h4>
+        <p class="mb-3">Type hints are <strong>optional documentation</strong> — Python <strong>does NOT enforce</strong> them at runtime:</p>
+<pre><code># Function parameter and return type hints
+def add(a: int, b: int) -> int:
+    return a + b
+
+# These hints are just documentation — NOT enforced!
+print(add(3, 5))               # 8 — works as expected
+print(add("hello", " world"))  # "hello world" — still works!
+print(add(1.5, 2.5))           # 4.0 — no error
+
+# Variable annotations
+name: str = "Alice"
+age: int = 25
+gpa: float = 3.85
+is_enrolled: bool = True
+
+# Python ignores these at runtime:
+age: int = "twenty-five"   # No error! Just misleading</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Common Type Hints</h4>
+        <table>
+          <tr><th>Type</th><th>Hint</th><th>Example</th></tr>
+          <tr><td>Integer</td><td><code>int</code></td><td><code>def f(x: int) -> int:</code></td></tr>
+          <tr><td>Float</td><td><code>float</code></td><td><code>def f(x: float) -> float:</code></td></tr>
+          <tr><td>String</td><td><code>str</code></td><td><code>def f(x: str) -> str:</code></td></tr>
+          <tr><td>Boolean</td><td><code>bool</code></td><td><code>def f(x: bool) -> bool:</code></td></tr>
+          <tr><td>None return</td><td><code>None</code></td><td><code>def f() -> None:</code></td></tr>
+          <tr><td>List of ints</td><td><code>list[int]</code></td><td><code>def f(x: list[int]):</code></td></tr>
+          <tr><td>Dictionary</td><td><code>dict[str, int]</code></td><td><code>scores: dict[str, int]</code></td></tr>
+          <tr><td>Tuple</td><td><code>tuple[int, str]</code></td><td><code>pair: tuple[int, str]</code></td></tr>
+          <tr><td>Set</td><td><code>set[str]</code></td><td><code>tags: set[str]</code></td></tr>
+          <tr><td>Optional (may be None)</td><td><code>X | None</code></td><td><code>def f(x: int | None):</code></td></tr>
+          <tr><td>Union</td><td><code>int | str</code></td><td><code>def f(x: int | str):</code></td></tr>
+        </table>
+
+<pre><code># Complex type hints in practice
+def find_student(
+    students: list[dict[str, str | float]],
+    name: str
+) -> dict[str, str | float] | None:
+    """Find a student by name, or return None."""
+    for s in students:
+        if s["name"] == name:
+            return s
+    return None</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Static Type Checking with <code>mypy</code></h4>
+        <p class="mb-3">Type hints become powerful when you use a <strong>static type checker</strong> like <code>mypy</code>. It analyzes your code <em>without running it</em> — similar to how a C++ compiler catches type errors:</p>
+<pre><code># install: pip install mypy
+# run:     mypy your_script.py
+
+def add(a: int, b: int) -> int:
+    return a + b
+
+# mypy will flag this:
+result = add("hello", "world")
+# error: Argument 1 to "add" has incompatible type "str"; expected "int"</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Enforcing Types at Runtime</h4>
+        <p class="mb-3">If you need to <strong>actually enforce</strong> types (like C++ does at compile time), you have several options:</p>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2">Option 1: Manual Type Checking with <code>isinstance()</code></p>
+<pre><code>def add(a, b):
+    if not isinstance(a, (int, float)):
+        raise TypeError(f"Expected int or float, got {type(a).__name__}")
+    if not isinstance(b, (int, float)):
+        raise TypeError(f"Expected int or float, got {type(b).__name__}")
+    return a + b
+
+print(add(3, 5))            # 8
+print(add(1.5, 2.5))        # 4.0
+# add("hello", "world")     # TypeError: Expected int or float, got str</code></pre>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2 mt-4">Option 2: <code>assert</code> Statements</p>
+<pre><code>def divide(a: float, b: float) -> float:
+    assert isinstance(a, (int, float)), f"a must be numeric, got {type(a)}"
+    assert isinstance(b, (int, float)), f"b must be numeric, got {type(b)}"
+    assert b != 0, "Division by zero!"
+    return a / b
+
+print(divide(10, 3))   # 3.333...
+# divide("10", 3)      # AssertionError: a must be numeric, got &lt;class 'str'&gt;</code></pre>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2 mt-4">Option 3: Type-Enforcing Decorator</p>
+        <p class="mb-3">Write a reusable decorator that checks types automatically from annotations:</p>
+<pre><code>import inspect
+
+def enforce_types(func):
+    hints = func.__annotations__
+    sig = inspect.signature(func)
+
+    def wrapper(*args, **kwargs):
+        bound = sig.bind(*args, **kwargs)
+        for name, value in bound.arguments.items():
+            if name in hints:
+                expected = hints[name]
+                if not isinstance(value, expected):
+                    raise TypeError(
+                        f"Argument '{name}' must be {expected.__name__}, "
+                        f"got {type(value).__name__}"
+                    )
+        return func(*args, **kwargs)
+    return wrapper
+
+@enforce_types
+def add(a: int, b: int) -> int:
+    return a + b
+
+print(add(3, 5))           # 8
+# add("hello", "world")   # TypeError: Argument 'a' must be int, got str</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Docstrings</h4>
+        <p class="mb-3">Document your functions with triple-quoted docstrings (Google style recommended):</p>
 <pre><code>def binary_search(arr: list[int], target: int) -> int:
-    """Return the index of target in sorted arr, or -1 if not found.
+    """Return the index of target in a sorted list, or -1 if not found.
 
     Args:
         arr: A sorted list of integers.
         target: The integer to search for.
 
     Returns:
-        The index of target, or -1.
+        The index of target, or -1 if not found.
+
+    Raises:
+        TypeError: If arr is not a list.
+
+    Example:
+        >>> binary_search([1, 3, 5, 7, 9], 5)
+        2
+        >>> binary_search([1, 3, 5, 7, 9], 4)
+        -1
     """
     lo, hi = 0, len(arr) - 1
-    while lo <= hi:
+    while lo &lt;= hi:
         mid = (lo + hi) // 2
         if arr[mid] == target:
             return mid
-        elif arr[mid] < target:
+        elif arr[mid] &lt; target:
             lo = mid + 1
         else:
             hi = mid - 1
-    return -1</code></pre>
-        <div class="note">Type hints are optional and not enforced at runtime. Use tools like <code>mypy</code> for static type checking, similar to TypeScript's relationship with JavaScript.</div>
+    return -1
+
+# Access docstring
+print(binary_search.__doc__)
+help(binary_search)</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Type System Comparison</h4>
+        <table>
+          <tr><th>Feature</th><th>C++</th><th>Python</th></tr>
+          <tr><td>When types are checked</td><td>Compile time</td><td>Runtime (or never)</td></tr>
+          <tr><td>Type declarations</td><td>Required</td><td>Optional annotations</td></tr>
+          <tr><td>Type enforcement</td><td>Automatic (compiler)</td><td>Manual or via <code>mypy</code></td></tr>
+          <tr><td>Can a variable change type?</td><td>No</td><td>Yes</td></tr>
+          <tr><td>Function overloading</td><td>Yes (different signatures)</td><td>No (use defaults/<code>*args</code>)</td></tr>
+          <tr><td><code>void</code> return type</td><td><code>void</code></td><td><code>-> None</code> (hint only)</td></tr>
+          <tr><td>Generic types</td><td>Templates</td><td><code>TypeVar</code>, generics</td></tr>
+        </table>
+        <div class="note"><strong>Best practice:</strong> Always add type hints to function signatures for documentation, and run <code>mypy</code> in your CI pipeline to catch type errors before runtime. This gives you the safety of C++ types with the flexibility of Python.</div>
       </section>
 
       <section id="exercises" class="bg-white border border-slate-200 rounded-xl p-6 mt-8 shadow-sm">
         <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>Exercises</h2>
-        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700">
-          <li>Write a function <code>clamp(value, lo, hi)</code> that returns the value bounded within the range, using keyword-only arguments for lo and hi.</li>
-          <li>Demonstrate the mutable default argument trap with a list and show the corrected version.</li>
-          <li>Create a <code>make_logger(prefix)</code> closure that returns a function printing messages with the given prefix.</li>
-          <li>Rewrite three small loops using <code>map</code>, <code>filter</code>, and <code>reduce</code>.</li>
-          <li>Add complete type hints and a Google-style docstring to a function that computes the dot product of two vectors.</li>
+
+        <p class="text-sm font-semibold text-slate-600 mb-2">Functions and Arguments</p>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700 mb-5">
+          <li>Write a function <code>clamp(value, *, lo=0, hi=100)</code> that returns the value bounded within the range, using keyword-only arguments for <code>lo</code> and <code>hi</code>.</li>
+          <li>Write a function <code>describe(*args, **kwargs)</code> that prints how many positional and keyword arguments it received, and lists them.</li>
+          <li>Demonstrate the mutable default argument trap: write a buggy version with a list default, show the surprising output, then write the corrected version.</li>
+          <li>Write a function that accepts any number of strings and returns the longest one. If there's a tie, return the first one found.</li>
+          <li>Write a function <code>power(base, exp, /)</code> using positional-only parameters and another <code>greet(*, name, greeting="Hello")</code> using keyword-only parameters.</li>
+          <li>Create a function that returns multiple values: given a list of numbers, return the min, max, mean, and count as a tuple. Unpack the results when calling it.</li>
+        </ol>
+
+        <p class="text-sm font-semibold text-slate-600 mb-2">Scope and Closures</p>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700 mb-5" start="7">
+          <li>Write a nested function example that demonstrates all four LEGB scopes. Print which scope each variable came from.</li>
+          <li>Create a <code>make_counter()</code> closure that returns <code>increment</code> and <code>reset</code> functions sharing the same <code>count</code> variable.</li>
+          <li>Create a <code>make_logger(prefix)</code> closure that returns a function printing messages with the given prefix and a timestamp.</li>
+          <li>Explain what happens when you write <code>x = 10; def f(): print(x); x = 20</code> &mdash; why does it raise an error?</li>
+        </ol>
+
+        <p class="text-sm font-semibold text-slate-600 mb-2">Lambda and Higher-Order Functions</p>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700 mb-5" start="11">
+          <li>Use <code>sorted()</code> with a lambda to sort a list of dictionaries <code>[{"name": "Ali", "age": 20}, ...]</code> by age.</li>
+          <li>Use <code>map()</code> to convert a list of temperatures from Celsius to Fahrenheit (<code>F = C * 9/5 + 32</code>).</li>
+          <li>Use <code>filter()</code> to keep only palindrome strings from a list.</li>
+          <li>Use <code>reduce()</code> to compute the product of all numbers in a list (without using <code>math.prod</code>).</li>
+          <li>Write a function <code>apply_twice(func, value)</code> that applies <code>func</code> to <code>value</code> two times and returns the result.</li>
+        </ol>
+
+        <p class="text-sm font-semibold text-slate-600 mb-2">Type Hints and Enforcement</p>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700" start="16">
+          <li>Add complete type hints to a function that computes the dot product of two vectors (<code>list[float]</code>) and returns a <code>float</code>.</li>
+          <li>Write a function with type hints that accepts either an <code>int</code> or a <code>str</code> (union type) and returns the value doubled.</li>
+          <li>Write a version of <code>add(a, b)</code> that uses <code>isinstance()</code> to enforce that both arguments are numbers, raising <code>TypeError</code> otherwise.</li>
+          <li>Add a Google-style docstring (with Args, Returns, Raises, Example sections) to any function from the exercises above.</li>
+          <li>Compare: write the same function (area of a rectangle) in C++ and Python, noting the differences in return type declaration, parameter types, and error handling.</li>
         </ol>
       </section>
 

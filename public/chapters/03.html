@@ -7,11 +7,12 @@
       <section id="outcomes" class="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
         <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Learning Outcomes</h2>
         <ul class="space-y-2 text-sm text-slate-700">
-          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Write conditional logic using <code>if</code>, <code>elif</code>, and <code>else</code>.</li>
-          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use <code>for</code> and <code>while</code> loops with <code>break</code>, <code>continue</code>, and <code>else</code>.</li>
-          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Apply the <code>match</code> statement (Python 3.10+) as an alternative to switch-case.</li>
-          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Construct list, dict, and set comprehensions.</li>
-          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use <code>enumerate()</code>, <code>zip()</code>, and <code>range()</code> for Pythonic iteration.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Write conditional logic using <code>if</code>, <code>elif</code>, <code>else</code>, ternary expressions, and chained comparisons.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Understand truthiness/falsiness and membership testing with <code>in</code>.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use <code>for</code> and <code>while</code> loops with <code>break</code>, <code>continue</code>, loop <code>else</code>, and the walrus operator.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Apply <code>match</code>/<code>case</code> (Python 3.10+) with value, OR, guard, sequence, type, and mapping patterns.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Construct list, dict, set comprehensions, and generator expressions.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use <code>enumerate()</code>, <code>zip()</code>, <code>range()</code>, <code>sorted()</code>, <code>any()</code>/<code>all()</code>, <code>map()</code>/<code>filter()</code> for Pythonic iteration.</li>
         </ul>
       </section>
 
@@ -24,102 +25,748 @@ if temperature > 30:
     print("Hot")
 elif temperature > 20:
     print("Warm")
+elif temperature > 10:
+    print("Cool")
 else:
-    print("Cool")</code></pre>
-        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Ternary Expression</h4>
-<pre><code># C++/Java:  result = (x > 0) ? "positive" : "non-positive";
-result = "positive" if x > 0 else "non-positive"</code></pre>
-        <div class="note">Python has no <code>switch</code> statement before 3.10. For older code, use a chain of <code>elif</code> or a dictionary dispatch pattern.</div>
+    print("Cold")</code></pre>
+
+        <p class="mb-3">You can chain as many <code>elif</code> branches as needed. The <code>else</code> block is optional but recommended as a catch-all.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Truthiness and Falsiness</h4>
+        <p class="mb-3">Python evaluates any object in a boolean context. The following values are considered <strong>falsy</strong> (evaluate to <code>False</code>):</p>
+        <table>
+          <tr><th>Type</th><th>Falsy Value</th></tr>
+          <tr><td><code>bool</code></td><td><code>False</code></td></tr>
+          <tr><td><code>NoneType</code></td><td><code>None</code></td></tr>
+          <tr><td><code>int</code></td><td><code>0</code></td></tr>
+          <tr><td><code>float</code></td><td><code>0.0</code></td></tr>
+          <tr><td><code>str</code></td><td><code>""</code> (empty string)</td></tr>
+          <tr><td><code>list</code></td><td><code>[]</code> (empty list)</td></tr>
+          <tr><td><code>dict</code></td><td><code>{}</code> (empty dict)</td></tr>
+          <tr><td><code>tuple</code></td><td><code>()</code> (empty tuple)</td></tr>
+          <tr><td><code>set</code></td><td><code>set()</code> (empty set)</td></tr>
+        </table>
+        <p class="mb-3">Everything else is <strong>truthy</strong>. This lets you write clean, Pythonic checks:</p>
+<pre><code>name = ""
+items = [1, 2, 3]
+
+# Pythonic — check truthiness directly
+if name:
+    print(f"Hello, {name}")
+else:
+    print("Name is empty")
+
+if items:
+    print(f"Found {len(items)} items")
+
+# Avoid this — un-Pythonic
+if len(items) > 0:     # redundant
+    print("Has items")
+if name != "":         # redundant
+    print(name)</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Chained Comparisons</h4>
+        <p class="mb-3">Python allows chaining comparison operators — a unique feature not found in C++ or Java:</p>
+<pre><code>x = 15
+
+# Python — chained comparison
+if 10 &lt; x &lt; 20:
+    print("x is between 10 and 20")
+
+# Equivalent (but longer)
+if x > 10 and x &lt; 20:
+    print("x is between 10 and 20")
+
+# Works with any comparison operators
+if 0 &lt;= x &lt;= 100:
+    print("Valid percentage")
+
+# C++ equivalent requires: if (x > 10 && x &lt; 20)</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Membership Testing with <code>in</code></h4>
+<pre><code>vowels = "aeiou"
+char = "e"
+
+if char in vowels:
+    print(f"'{char}' is a vowel")
+
+# Works with any iterable
+valid_statuses = [200, 201, 204, 301]
+if status_code in valid_statuses:
+    print("Success")
+
+# Negation
+if "python" not in ["java", "c++", "rust"]:
+    print("Python not in the list")</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Nested Conditionals</h4>
+<pre><code>score = 85
+attendance = 90
+
+if score >= 60:
+    if attendance >= 75:
+        print("Pass")
+    else:
+        print("Fail — low attendance")
+else:
+    print("Fail — low score")</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Ternary (Conditional) Expression</h4>
+        <p class="mb-3">Python's inline conditional replaces C++/Java's <code>? :</code> operator:</p>
+<pre><code># Syntax: value_if_true if condition else value_if_false
+
+# C++/Java:  result = (x > 0) ? "positive" : "non-positive";
+result = "positive" if x > 0 else "non-positive"
+
+# Useful in assignments
+age = 20
+category = "adult" if age >= 18 else "minor"
+
+# Can be nested (but avoid deep nesting — hurts readability)
+grade = "A" if score >= 90 else "B" if score >= 80 else "C" if score >= 70 else "F"</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">The <code>pass</code> Statement</h4>
+        <p class="mb-3">Use <code>pass</code> as a placeholder when a block requires a body but you have nothing to write yet:</p>
+<pre><code>if temperature > 40:
+    pass  # TODO: implement heat warning
+elif temperature &lt; 0:
+    pass  # TODO: implement freeze warning
+else:
+    print("Normal temperature")</code></pre>
+        <div class="note"><strong>C++ comparison:</strong> Python uses indentation instead of braces <code>{}</code>. There is no standalone <code>switch</code> until Python 3.10's <code>match</code>. Parentheses around conditions are optional: <code>if x > 0:</code> not <code>if (x > 0):</code>.</div>
       </section>
 
       <section id="loops">
         <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">3.2 Loops</h3>
-        <h4 class="font-semibold text-slate-800 mb-2">for Loop</h4>
-        <p class="mb-3">Python's <code>for</code> iterates over any <em>iterable</em> &#8212; lists, strings, ranges, files, etc. It does not use an index counter by default like C-style for loops.</p>
-<pre><code>languages = ["Python", "C++", "Java"]
+
+        <h4 class="font-semibold text-slate-800 mb-2">The <code>range()</code> Function</h4>
+        <p class="mb-3">Before diving into loops, you need <code>range()</code> — it generates a sequence of integers and is the backbone of counted iteration in Python:</p>
+<pre><code># range(stop)          — 0 to stop-1
+# range(start, stop)   — start to stop-1
+# range(start, stop, step)
+
+list(range(5))           # [0, 1, 2, 3, 4]
+list(range(2, 8))        # [2, 3, 4, 5, 6, 7]
+list(range(0, 20, 3))    # [0, 3, 6, 9, 12, 15, 18]
+list(range(10, 0, -1))   # [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+list(range(10, 0, -2))   # [10, 8, 6, 4, 2]</code></pre>
+        <div class="note"><code>range()</code> is <strong>lazy</strong> — it does not create a list in memory. It generates values one at a time, making <code>range(1_000_000_000)</code> efficient.</div>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2"><code>for</code> Loop</h4>
+        <p class="mb-3">Python's <code>for</code> iterates over any <em>iterable</em> — lists, strings, ranges, dictionaries, files, etc. It does <strong>not</strong> use an index counter like C-style <code>for(int i=0; i&lt;n; i++)</code>.</p>
+<pre><code># Iterating over a list
+languages = ["Python", "C++", "Java"]
 for lang in languages:
     print(lang)
 
-# Index-based iteration (if you need the index)
-for i, lang in enumerate(languages):
-    print(f"{i}: {lang}")</code></pre>
-        <h4 class="font-semibold text-slate-800 mt-4 mb-2">while Loop</h4>
-<pre><code>count = 5
+# Iterating over a string
+for char in "Python":
+    print(char, end=" ")   # P y t h o n
+
+# Iterating over a range (C-style counted loop)
+for i in range(5):
+    print(i)               # 0, 1, 2, 3, 4
+
+# Iterating over a dictionary
+student = {"name": "Ali", "grade": "A", "gpa": 3.8}
+for key in student:
+    print(f"{key}: {student[key]}")
+
+# Iterate over key-value pairs
+for key, value in student.items():
+    print(f"{key} → {value}")</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Index-Based Iteration with <code>enumerate()</code></h4>
+        <p class="mb-3">When you need both the index and the value, use <code>enumerate()</code> instead of <code>range(len(...))</code>:</p>
+<pre><code>fruits = ["apple", "banana", "cherry"]
+
+# Pythonic way
+for i, fruit in enumerate(fruits):
+    print(f"{i}: {fruit}")
+
+# Start counting from 1
+for i, fruit in enumerate(fruits, start=1):
+    print(f"{i}. {fruit}")
+
+# Avoid this — un-Pythonic
+for i in range(len(fruits)):
+    print(f"{i}: {fruits[i]}")</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2"><code>while</code> Loop</h4>
+        <p class="mb-3">Use <code>while</code> when the number of iterations is not known in advance:</p>
+<pre><code># Countdown
+count = 5
 while count > 0:
     print(count)
-    count -= 1   # No -- operator in Python</code></pre>
-        <h4 class="font-semibold text-slate-800 mt-4 mb-2">break, continue, and Loop else</h4>
-<pre><code>for n in range(2, 20):
-    for d in range(2, n):
+    count -= 1   # No ++ or -- operators in Python
+print("Go!")
+
+# User input loop
+while True:
+    response = input("Enter 'quit' to exit: ")
+    if response == "quit":
+        break
+    print(f"You entered: {response}")
+
+# Sentinel-controlled loop
+total = 0
+while (value := int(input("Enter number (0 to stop): "))) != 0:
+    total += value
+print(f"Total: {total}")</code></pre>
+        <div class="note">The <code>:=</code> is the <strong>walrus operator</strong> (Python 3.8+). It assigns and returns a value in the same expression, useful in loop conditions.</div>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2"><code>break</code> and <code>continue</code></h4>
+        <p class="mb-3"><code>break</code> exits the loop immediately. <code>continue</code> skips to the next iteration.</p>
+<pre><code># break — stop at first negative number
+numbers = [10, 25, -3, 42, 8]
+for n in numbers:
+    if n &lt; 0:
+        print(f"Negative number found: {n}")
+        break
+    print(f"Processing: {n}")
+# Output:
+# Processing: 10
+# Processing: 25
+# Negative number found: -3
+
+# continue — skip odd numbers
+for i in range(10):
+    if i % 2 != 0:
+        continue
+    print(i, end=" ")   # 0 2 4 6 8</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">The Loop <code>else</code> Clause</h4>
+        <p class="mb-3">Python has a unique feature: an <code>else</code> block on loops that executes <strong>only if the loop completes without hitting <code>break</code></strong>:</p>
+<pre><code># Prime number check using loop-else
+def is_prime(n):
+    if n &lt; 2:
+        return False
+    for d in range(2, int(n ** 0.5) + 1):
         if n % d == 0:
+            print(f"{n} is divisible by {d}")
             break
     else:
-        # Executes when the loop completes WITHOUT break
-        print(f"{n} is prime")</code></pre>
-        <div class="note">The <code>else</code> clause on loops is unique to Python and has no equivalent in C++/Java. It runs only when the loop terminates normally (not via <code>break</code>).</div>
+        # No divisor found — loop completed without break
+        print(f"{n} is prime")
+        return True
+    return False
+
+is_prime(17)  # "17 is prime"
+is_prime(15)  # "15 is divisible by 3"</code></pre>
+
+        <p class="mb-3">The same works with <code>while</code>:</p>
+<pre><code># Search with while-else
+items = ["apple", "banana", "cherry"]
+target = "mango"
+i = 0
+while i &lt; len(items):
+    if items[i] == target:
+        print(f"Found '{target}' at index {i}")
+        break
+    i += 1
+else:
+    print(f"'{target}' not found")
+# Output: 'mango' not found</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Nested Loops</h4>
+<pre><code># Multiplication table (5×5)
+for i in range(1, 6):
+    for j in range(1, 6):
+        print(f"{i*j:4d}", end="")
+    print()   # newline after each row
+
+# Output:
+#    1   2   3   4   5
+#    2   4   6   8  10
+#    3   6   9  12  15
+#    4   8  12  16  20
+#    5  10  15  20  25</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Common Patterns</h4>
+<pre><code># Accumulator pattern
+total = 0
+for n in [10, 20, 30, 40]:
+    total += n
+print(total)   # 100
+
+# Finding maximum
+values = [45, 12, 89, 33, 67]
+max_val = values[0]
+for v in values[1:]:
+    if v > max_val:
+        max_val = v
+print(max_val)   # 89
+
+# Counting occurrences
+text = "mississippi"
+count = 0
+for char in text:
+    if char == "s":
+        count += 1
+print(count)   # 4</code></pre>
+
+        <div class="note"><strong>C++ comparison:</strong> Python has no <code>do...while</code> loop. Simulate it with <code>while True: ... if condition: break</code>. Python also lacks <code>++</code>/<code>--</code> operators — use <code>+= 1</code> and <code>-= 1</code>.</div>
       </section>
 
       <section id="match">
         <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">3.3 Structural Pattern Matching</h3>
-        <p class="mb-3">Python 3.10 introduced <code>match</code>/<code>case</code>, which is more powerful than C++/Java <code>switch</code> &#8212; it supports destructuring, guards, and wildcard patterns.</p>
+        <p class="mb-3">Python 3.10 introduced <code>match</code>/<code>case</code>, which is far more powerful than C++/Java <code>switch</code> — it supports destructuring, guards, type patterns, and wildcard patterns.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Basic Value Matching</h4>
 <pre><code>def describe_http(status):
     match status:
         case 200:
             return "OK"
+        case 301:
+            return "Moved Permanently"
         case 404:
             return "Not Found"
         case 500:
             return "Server Error"
         case _:
-            return f"Unknown: {status}"</code></pre>
+            return f"Unknown: {status}"
+
+print(describe_http(200))   # "OK"
+print(describe_http(403))   # "Unknown: 403"</code></pre>
+        <p class="mb-3">The wildcard <code>_</code> matches anything and acts as the default case.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">OR Patterns</h4>
+        <p class="mb-3">Use <code>|</code> to match multiple values in a single case:</p>
+<pre><code>def classify_day(day):
+    match day.lower():
+        case "saturday" | "sunday":
+            return "Weekend"
+        case "monday" | "tuesday" | "wednesday" | "thursday" | "friday":
+            return "Weekday"
+        case _:
+            return "Invalid day"
+
+print(classify_day("Saturday"))   # "Weekend"
+print(classify_day("Monday"))     # "Weekday"</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Guards (Conditions on Patterns)</h4>
+        <p class="mb-3">Add <code>if</code> guards to refine when a case matches:</p>
+<pre><code>def classify_number(n):
+    match n:
+        case x if x &lt; 0:
+            return "Negative"
+        case 0:
+            return "Zero"
+        case x if x &lt; 10:
+            return "Small positive"
+        case x if x &lt; 100:
+            return "Medium positive"
+        case _:
+            return "Large positive"
+
+print(classify_number(-5))    # "Negative"
+print(classify_number(7))     # "Small positive"
+print(classify_number(150))   # "Large positive"</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Sequence (Destructuring) Patterns</h4>
+        <p class="mb-3">Match and unpack lists or tuples:</p>
+<pre><code>def process_command(command):
+    match command.split():
+        case ["quit"]:
+            return "Exiting..."
+        case ["hello", name]:
+            return f"Hello, {name}!"
+        case ["move", direction, distance]:
+            return f"Moving {direction} by {distance}"
+        case ["add", *numbers]:
+            total = sum(int(n) for n in numbers)
+            return f"Sum = {total}"
+        case _:
+            return "Unknown command"
+
+print(process_command("quit"))              # "Exiting..."
+print(process_command("hello Alice"))       # "Hello, Alice!"
+print(process_command("move north 10"))     # "Moving north by 10"
+print(process_command("add 1 2 3 4"))       # "Sum = 10"</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Type Patterns</h4>
+<pre><code>def describe_value(value):
+    match value:
+        case int(n):
+            return f"Integer: {n}"
+        case float(n):
+            return f"Float: {n}"
+        case str(s):
+            return f"String of length {len(s)}"
+        case list(items):
+            return f"List with {len(items)} items"
+        case _:
+            return f"Other: {type(value).__name__}"
+
+print(describe_value(42))           # "Integer: 42"
+print(describe_value(3.14))         # "Float: 3.14"
+print(describe_value("hello"))      # "String of length 5"
+print(describe_value([1, 2, 3]))    # "List with 3 items"</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Dictionary (Mapping) Patterns</h4>
+<pre><code>def process_event(event):
+    match event:
+        case {"type": "click", "x": x, "y": y}:
+            return f"Click at ({x}, {y})"
+        case {"type": "keypress", "key": key}:
+            return f"Key pressed: {key}"
+        case {"type": "scroll", "direction": d}:
+            return f"Scroll {d}"
+        case _:
+            return "Unknown event"
+
+print(process_event({"type": "click", "x": 100, "y": 200}))
+# "Click at (100, 200)"
+print(process_event({"type": "keypress", "key": "Enter"}))
+# "Key pressed: Enter"</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Practical Example: Grade Calculator</h4>
+<pre><code>def letter_grade(score):
+    match score // 10:
+        case 10 | 9:
+            return "A"
+        case 8:
+            return "B"
+        case 7:
+            return "C"
+        case 6:
+            return "D"
+        case _:
+            return "F"
+
+for s in [95, 82, 73, 61, 45]:
+    print(f"{s} → {letter_grade(s)}")
+# 95 → A
+# 82 → B
+# 73 → C
+# 61 → D
+# 45 → F</code></pre>
+
+        <div class="comparison-grid">
+            <div class="comparison-block">
+            <h4>C++ switch</h4>
+<pre><code>switch (status) {
+    case 200:
+        cout &lt;&lt; "OK"; break;
+    case 404:
+        cout &lt;&lt; "Not Found"; break;
+    default:
+        cout &lt;&lt; "Unknown";
+}
+// Requires break, no destructuring,
+// only matches integers/enums</code></pre>
+            </div>
+            <div class="comparison-block">
+            <h4>Python match</h4>
+<pre><code>match status:
+    case 200:
+        print("OK")
+    case 404:
+        print("Not Found")
+    case _:
+        print("Unknown")
+# No break needed, supports strings,
+# destructuring, guards, dicts, types</code></pre>
+            </div>
+        </div>
       </section>
 
       <section id="comprehensions">
         <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">3.4 Comprehensions</h3>
-        <p class="mb-3">Comprehensions provide a concise way to build collections from iterables. They replace many common for-loop patterns.</p>
-<pre><code># List comprehension
+        <p class="mb-3">Comprehensions provide a concise, readable way to build collections from iterables. They replace many common for-loop patterns and are a hallmark of Pythonic code.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">List Comprehension</h4>
+        <p class="mb-3">Syntax: <code>[expression for item in iterable]</code></p>
+<pre><code># Basic — squares of 0..9
 squares = [x ** 2 for x in range(10)]
+print(squares)   # [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
 
-# With filter
+# Equivalent for-loop (longer, less Pythonic)
+squares = []
+for x in range(10):
+    squares.append(x ** 2)</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Filtering with <code>if</code></h4>
+        <p class="mb-3">Syntax: <code>[expression for item in iterable if condition]</code></p>
+<pre><code># Even numbers only
 evens = [x for x in range(20) if x % 2 == 0]
+print(evens)   # [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
 
-# Dict comprehension
-word_lengths = {w: len(w) for w in ["hello", "world"]}
+# Words longer than 3 characters
+words = ["hi", "hello", "hey", "greetings", "yo"]
+long_words = [w for w in words if len(w) > 3]
+print(long_words)   # ['hello', 'greetings']
 
-# Set comprehension
-unique_lengths = {len(w) for w in ["cat", "dog", "ant"]}</code></pre>
+# Filter and transform
+scores = [45, 82, 91, 67, 55, 78, 93]
+passing = [s for s in scores if s >= 60]
+print(passing)   # [82, 91, 67, 78, 93]</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Conditional Expression in Comprehension</h4>
+        <p class="mb-3">Use <code>if/else</code> in the <strong>expression</strong> part (not the filter) to transform values conditionally:</p>
+<pre><code># Classify each number
+labels = ["even" if x % 2 == 0 else "odd" for x in range(6)]
+print(labels)   # ['even', 'odd', 'even', 'odd', 'even', 'odd']
+
+# Clamp values to a range [0, 100]
+raw = [-5, 42, 110, 73, -20, 88]
+clamped = [max(0, min(100, x)) for x in raw]
+print(clamped)   # [0, 42, 100, 73, 0, 88]</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Dictionary Comprehension</h4>
+        <p class="mb-3">Syntax: <code>{key_expr: value_expr for item in iterable}</code></p>
+<pre><code># Word → length mapping
+words = ["hello", "world", "python"]
+word_lengths = {w: len(w) for w in words}
+print(word_lengths)   # {'hello': 5, 'world': 5, 'python': 6}
+
+# Invert a dictionary
+original = {"a": 1, "b": 2, "c": 3}
+inverted = {v: k for k, v in original.items()}
+print(inverted)   # {1: 'a', 2: 'b', 3: 'c'}
+
+# Filtered — only even values
+numbers = {"a": 1, "b": 2, "c": 3, "d": 4}
+even_only = {k: v for k, v in numbers.items() if v % 2 == 0}
+print(even_only)   # {'b': 2, 'd': 4}</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Set Comprehension</h4>
+        <p class="mb-3">Syntax: <code>{expression for item in iterable}</code> — like dict comprehension but without the <code>:</code></p>
+<pre><code># Unique word lengths
+words = ["cat", "dog", "ant", "elephant", "bee"]
+unique_lengths = {len(w) for w in words}
+print(unique_lengths)   # {3, 8}
+
+# Unique first letters
+names = ["Alice", "Bob", "Anna", "Brian", "Charlie"]
+initials = {name[0] for name in names}
+print(initials)   # {'A', 'B', 'C'}</code></pre>
+
         <h4 class="font-semibold text-slate-800 mt-4 mb-2">Nested Comprehensions</h4>
 <pre><code># Flatten a 2D matrix
 matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
 flat = [val for row in matrix for val in row]
-# [1, 2, 3, 4, 5, 6, 7, 8, 9]</code></pre>
+print(flat)   # [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+# Read it as:
+# for row in matrix:
+#     for val in row:
+#         flat.append(val)
+
+# Create a 2D matrix
+grid = [[0 for col in range(4)] for row in range(3)]
+print(grid)   # [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+
+# Multiplication table
+table = [[i * j for j in range(1, 6)] for i in range(1, 6)]
+for row in table:
+    print(row)
+# [1, 2, 3, 4, 5]
+# [2, 4, 6, 8, 10]
+# [3, 6, 9, 12, 15]
+# [4, 8, 12, 16, 20]
+# [5, 10, 15, 20, 25]</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Generator Expressions</h4>
+        <p class="mb-3">Replace <code>[]</code> with <code>()</code> to create a <strong>generator</strong> — it produces values lazily (one at a time) and uses almost no memory:</p>
+<pre><code># Generator expression — lazy, memory-efficient
+total = sum(x ** 2 for x in range(1_000_000))   # no list in memory
+
+# Compare memory usage
+import sys
+list_comp = [x ** 2 for x in range(10_000)]
+gen_expr  = (x ** 2 for x in range(10_000))
+
+print(sys.getsizeof(list_comp))   # ~87,616 bytes
+print(sys.getsizeof(gen_expr))    # ~200 bytes (only the generator object)
+
+# Use generators with any function that accepts an iterable
+max_val = max(len(word) for word in ["hello", "world", "python"])
+exists  = any(x > 100 for x in [10, 20, 150, 5])</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">When to Use Comprehensions</h4>
+        <div class="note">
+          <strong>Use comprehensions when:</strong> the logic is simple and fits on one line.<br>
+          <strong>Use a regular loop when:</strong> the body has multiple statements, side effects, try/except, or the comprehension becomes hard to read.
+          <p class="mt-2 mb-0"><strong>Rule of thumb:</strong> if a comprehension is longer than ~80 characters or requires explanation, use a loop instead.</p>
+        </div>
       </section>
 
       <section id="iteration-tools">
         <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">3.5 Iteration Utilities</h3>
-<pre><code># zip - iterate over parallel sequences
-names = ["Alice", "Bob"]
-scores = [95, 87]
+        <p class="mb-3">Python's built-in functions make iteration clean and expressive. Master these to write Pythonic code.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2"><code>zip()</code> &mdash; Parallel Iteration</h4>
+        <p class="mb-3">Combine two or more iterables element by element:</p>
+<pre><code>names = ["Alice", "Bob", "Charlie"]
+scores = [95, 87, 92]
+grades = ["A", "B+", "A"]
+
+# Two sequences
 for name, score in zip(names, scores):
     print(f"{name}: {score}")
+# Alice: 95
+# Bob: 87
+# Charlie: 92
 
-# range with step
-for i in range(0, 20, 3):
-    print(i)   # 0, 3, 6, 9, 12, 15, 18
+# Three or more sequences
+for name, score, grade in zip(names, scores, grades):
+    print(f"{name} scored {score} ({grade})")
 
-# reversed and sorted
-for item in reversed(sorted([3, 1, 4, 1, 5])):
-    print(item)</code></pre>
+# Create a dictionary from two lists
+student_scores = dict(zip(names, scores))
+print(student_scores)   # {'Alice': 95, 'Bob': 87, 'Charlie': 92}</code></pre>
+
+        <p class="mb-3">By default, <code>zip()</code> stops at the <strong>shortest</strong> iterable:</p>
+<pre><code>a = [1, 2, 3, 4, 5]
+b = ["x", "y", "z"]
+
+print(list(zip(a, b)))   # [(1, 'x'), (2, 'y'), (3, 'z')]  — 4 and 5 dropped
+
+# Use strict=True (Python 3.10+) to enforce equal lengths
+# zip(a, b, strict=True)   # ValueError: different lengths
+
+# Use itertools.zip_longest to pad shorter sequences
+from itertools import zip_longest
+print(list(zip_longest(a, b, fillvalue="-")))
+# [(1, 'x'), (2, 'y'), (3, 'z'), (4, '-'), (5, '-')]</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2"><code>reversed()</code> and <code>sorted()</code></h4>
+<pre><code>numbers = [3, 1, 4, 1, 5, 9, 2, 6]
+
+# sorted — returns a NEW sorted list (original unchanged)
+print(sorted(numbers))              # [1, 1, 2, 3, 4, 5, 6, 9]
+print(sorted(numbers, reverse=True))  # [9, 6, 5, 4, 3, 2, 1, 1]
+print(numbers)                       # [3, 1, 4, 1, 5, 9, 2, 6]  (unchanged)
+
+# Sort by custom key
+words = ["banana", "apple", "cherry", "date"]
+print(sorted(words))                 # alphabetical
+print(sorted(words, key=len))        # by length: ['date', 'apple', 'banana', 'cherry']
+
+# reversed — returns an iterator (lazy)
+for item in reversed([10, 20, 30]):
+    print(item)   # 30, 20, 10
+
+# Combine: iterate sorted in reverse
+for item in reversed(sorted(numbers)):
+    print(item)   # 9, 6, 5, 4, 3, 2, 1, 1</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2"><code>any()</code> and <code>all()</code></h4>
+        <p class="mb-3">Test conditions across an entire iterable:</p>
+<pre><code>scores = [85, 92, 78, 45, 91]
+
+# any — True if at least one element is True
+print(any(s > 90 for s in scores))      # True (92 and 91)
+print(any(s > 100 for s in scores))     # False
+
+# all — True if every element is True
+print(all(s >= 60 for s in scores))     # False (45 fails)
+print(all(s >= 0 for s in scores))      # True
+
+# Practical: check if a list has any empty strings
+names = ["Alice", "", "Charlie"]
+print(all(names))   # False (empty string is falsy)
+print(any(names))   # True</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2"><code>map()</code> and <code>filter()</code></h4>
+        <p class="mb-3">Functional-style alternatives to comprehensions (returns lazy iterators):</p>
+<pre><code># map — apply a function to each element
+numbers = [1, 2, 3, 4, 5]
+squares = list(map(lambda x: x ** 2, numbers))
+print(squares)   # [1, 4, 9, 16, 25]
+
+# Equivalent comprehension (often preferred)
+squares = [x ** 2 for x in numbers]
+
+# filter — keep elements where function returns True
+evens = list(filter(lambda x: x % 2 == 0, numbers))
+print(evens)   # [2, 4]
+
+# Equivalent comprehension
+evens = [x for x in numbers if x % 2 == 0]
+
+# map with built-in functions
+words = ["hello", "WORLD", "Python"]
+lower_words = list(map(str.lower, words))
+print(lower_words)   # ['hello', 'world', 'python']
+
+# Convert list of strings to integers
+str_nums = ["10", "20", "30"]
+int_nums = list(map(int, str_nums))
+print(int_nums)   # [10, 20, 30]</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Unpacking with <code>*</code> in Loops</h4>
+<pre><code># Iterate over list of tuples
+students = [
+    ("Alice", 95, "A"),
+    ("Bob", 87, "B+"),
+    ("Charlie", 92, "A"),
+]
+
+for name, score, grade in students:
+    print(f"{name}: {score} ({grade})")
+
+# Unpacking with * for variable-length items
+data = [("Alice", 95, 88, 92), ("Bob", 87, 91)]
+for name, *scores in data:
+    avg = sum(scores) / len(scores)
+    print(f"{name}: avg = {avg:.1f}")
+# Alice: avg = 91.7
+# Bob: avg = 89.0</code></pre>
+
+        <div class="note"><strong>Summary:</strong> Prefer <code>for x in iterable</code> over index-based loops. Use <code>enumerate()</code> when you need indices, <code>zip()</code> for parallel iteration, comprehensions for transformations, and <code>any()</code>/<code>all()</code> for boolean aggregation.</div>
       </section>
 
       <section id="exercises" class="bg-white border border-slate-200 rounded-xl p-6 mt-8 shadow-sm">
         <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>Exercises</h2>
-        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700">
-          <li>Rewrite the C++ FizzBuzz program in Python using a <code>for</code> loop and <code>if</code>/<code>elif</code>/<code>else</code>.</li>
-          <li>Use a list comprehension to generate all Pythagorean triples <code>(a, b, c)</code> where <code>a, b, c &lt; 30</code>.</li>
-          <li>Write a <code>match</code>/<code>case</code> statement that classifies a character as vowel, consonant, digit, or other.</li>
-          <li>Demonstrate the loop <code>else</code> clause to check whether a number is prime.</li>
-          <li>Rewrite a nested C-style loop using <code>zip</code> and <code>enumerate</code> to iterate two parallel arrays with indices.</li>
+
+        <p class="text-sm font-semibold text-slate-600 mb-2">Conditionals</p>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700 mb-5">
+          <li>Write a program that asks the user for a number and prints whether it is positive, negative, or zero.</li>
+          <li>Write a function <code>classify_bmi(bmi)</code> that returns <code>"Underweight"</code>, <code>"Normal"</code>, <code>"Overweight"</code>, or <code>"Obese"</code> based on standard BMI ranges.</li>
+          <li>Given a year, determine if it is a leap year using chained conditionals. (Divisible by 4, but not by 100, unless also by 400.)</li>
+          <li>Rewrite the following C++ ternary as a Python one-liner: <code>string s = (n % 2 == 0) ? "even" : "odd";</code></li>
+        </ol>
+
+        <p class="text-sm font-semibold text-slate-600 mb-2">Loops</p>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700 mb-5" start="5">
+          <li>Write the classic FizzBuzz program for numbers 1-100 using a <code>for</code> loop. Print <code>"Fizz"</code> for multiples of 3, <code>"Buzz"</code> for multiples of 5, <code>"FizzBuzz"</code> for both, and the number otherwise.</li>
+          <li>Use a <code>while</code> loop to compute the sum of digits of a number (e.g., 12345 &rarr; 15).</li>
+          <li>Write a program that prints all prime numbers from 2 to 100 using the loop <code>else</code> clause.</li>
+          <li>Write a nested loop to print this pattern:<br>
+<pre><code>*
+**
+***
+****
+*****</code></pre>
+          </li>
+          <li>Use <code>break</code> and <code>continue</code> to iterate through a list of numbers, skip negatives, and stop at the first number greater than 100.</li>
+        </ol>
+
+        <p class="text-sm font-semibold text-slate-600 mb-2">Pattern Matching</p>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700 mb-5" start="10">
+          <li>Write a <code>match</code>/<code>case</code> statement that classifies a character as <code>"vowel"</code>, <code>"consonant"</code>, <code>"digit"</code>, or <code>"other"</code>.</li>
+          <li>Write a function <code>process_shape(shape)</code> that uses <code>match</code> with destructuring to calculate area from tuples like <code>("circle", 5)</code>, <code>("rectangle", 4, 6)</code>, and <code>("triangle", 3, 8)</code>.</li>
+          <li>Write a simple command parser using <code>match</code> with <code>command.split()</code> that handles: <code>"greet NAME"</code>, <code>"add X Y"</code>, <code>"quit"</code>.</li>
+        </ol>
+
+        <p class="text-sm font-semibold text-slate-600 mb-2">Comprehensions</p>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700 mb-5" start="13">
+          <li>Use a list comprehension to generate all Pythagorean triples <code>(a, b, c)</code> where <code>a, b, c &lt; 30</code> and <code>a &lt; b &lt; c</code>.</li>
+          <li>Given a sentence, create a dict comprehension mapping each unique word to its length.</li>
+          <li>Use a set comprehension to find all unique vowels in a given string.</li>
+          <li>Flatten a 3D list <code>[[[1,2],[3,4]],[[5,6],[7,8]]]</code> into a single list using nested comprehensions.</li>
+          <li>Rewrite this loop as a comprehension: <code>result = []; for x in range(50): if x % 3 == 0 and x % 5 != 0: result.append(x * 2)</code></li>
+        </ol>
+
+        <p class="text-sm font-semibold text-slate-600 mb-2">Iteration Utilities</p>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700" start="18">
+          <li>Given two lists <code>names</code> and <code>ages</code>, use <code>zip()</code> to print each person's name and age, then create a dictionary from them.</li>
+          <li>Use <code>enumerate()</code> to print a numbered menu from a list of options, starting from 1.</li>
+          <li>Given a list of exam scores, use <code>any()</code> and <code>all()</code> to check: (a) if any student scored 100, and (b) if all students passed (score &ge; 60).</li>
+          <li>Use <code>sorted()</code> with a <code>key</code> function to sort a list of tuples <code>[(name, age), ...]</code> by age, then by name.</li>
+          <li>Convert a list of temperature strings <code>["32.0", "98.6", "212.0"]</code> to floats using <code>map()</code>, and filter out values above 100.</li>
         </ol>
       </section>
 
