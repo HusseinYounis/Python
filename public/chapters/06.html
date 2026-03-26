@@ -1,28 +1,34 @@
 ﻿<div class="mb-6">
         <span class="inline-block bg-primary-100 text-primary-700 text-xs font-bold px-3 py-1 rounded-full mb-3">CHAPTER 06</span>
         <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Object-Oriented Programming</h1>
-        <p class="text-slate-500">Classes, inheritance, encapsulation, polymorphism, and dunder methods.</p>
+        <p class="text-slate-500">Classes, inheritance, encapsulation, polymorphism, dunder methods, dataclasses, and abstract base classes.</p>
       </div>
 
       <section id="outcomes" class="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
         <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Learning Outcomes</h2>
         <ul class="space-y-2 text-sm text-slate-700">
-          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Define classes with <code>__init__</code> and instance methods.</li>
-          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Implement single and multiple inheritance.</li>
-          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use properties for controlled attribute access.</li>
-          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Override dunder methods for operator overloading.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Define classes with <code>__init__</code>, instance methods, and class/instance attributes.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Implement single and multiple inheritance with <code>super()</code>.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use properties for controlled attribute access and understand name mangling.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Override dunder methods for operator overloading, comparison, and context managers.</li>
           <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Apply class methods, static methods, and abstract base classes.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use <code>dataclasses</code> to reduce boilerplate for data-holding classes.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Apply composition as an alternative to inheritance.</li>
+          <li class="flex items-start gap-2"><span class="text-primary-500 mt-0.5">&#9679;</span>Use <code>__slots__</code> for memory-efficient classes.</li>
         </ul>
       </section>
 
+      <!-- ==================== 6.1 DEFINING CLASSES ==================== -->
       <section id="classes">
         <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4">6.1 Defining Classes</h3>
         <p class="mb-3">In Python, classes are defined with the <code>class</code> keyword. The constructor is <code>__init__</code> (unlike C++ constructors or Java constructors that share the class name). Every instance method takes <code>self</code> as its first parameter (equivalent to <code>this</code> in C++/Java, but explicit).</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Basic Class Definition</h4>
 <pre><code>class Vector2D:
     """A 2D vector with x and y components."""
 
     def __init__(self, x: float, y: float):
-        self.x = x
+        self.x = x          # instance attribute
         self.y = y
 
     def magnitude(self) -> float:
@@ -35,16 +41,73 @@ v = Vector2D(3, 4)
 print(v.magnitude())  # 5.0
 print(v)              # Vector2D(3, 4)</code></pre>
         <div class="note">Python has no <code>new</code> keyword. Calling <code>Vector2D(3, 4)</code> automatically creates the object and calls <code>__init__</code>.</div>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Instance vs Class Attributes</h4>
+<pre><code>class Student:
+    # Class attribute - shared by ALL instances
+    university = "Engineering University"
+    student_count = 0
+
+    def __init__(self, name: str, gpa: float):
+        # Instance attributes - unique per object
+        self.name = name
+        self.gpa = gpa
+        Student.student_count += 1
+
+s1 = Student("Alice", 3.9)
+s2 = Student("Bob", 3.5)
+print(Student.student_count)      # 2
+print(s1.university)              # Engineering University
+
+# Changing class attribute affects all instances
+Student.university = "Tech University"
+print(s2.university)              # Tech University
+
+# But assigning on instance creates a LOCAL copy
+s1.university = "State University"
+print(s1.university)              # State University (instance)
+print(s2.university)              # Tech University  (class)</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2"><code>__str__</code> vs <code>__repr__</code></h4>
+<pre><code>class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __repr__(self):
+        """For developers: unambiguous, eval()-able if possible."""
+        return f"Point({self.x}, {self.y})"
+
+    def __str__(self):
+        """For users: readable, friendly."""
+        return f"({self.x}, {self.y})"
+
+p = Point(3, 4)
+print(repr(p))    # Point(3, 4)    - used by debugger, containers
+print(str(p))     # (3, 4)         - used by print()
+print(p)          # (3, 4)         - print calls __str__
+print([p])        # [Point(3, 4)]  - containers use __repr__</code></pre>
       </section>
 
+      <!-- ==================== 6.2 INHERITANCE ==================== -->
       <section id="inheritance">
         <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">6.2 Inheritance</h3>
+        <p class="mb-3">Python supports single and multiple inheritance. Use <code>super()</code> to call parent methods &#8212; similar to <code>super</code> in Java or calling the base class explicitly in C++.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Single Inheritance and <code>super()</code></h4>
 <pre><code>class Shape:
+    def __init__(self, color: str = "black"):
+        self.color = color
+
     def area(self) -> float:
         raise NotImplementedError
 
+    def describe(self):
+        return f"{self.color} {type(self).__name__}, area={self.area():.2f}"
+
 class Circle(Shape):
-    def __init__(self, radius: float):
+    def __init__(self, radius: float, color: str = "black"):
+        super().__init__(color)   # Call parent __init__
         self.radius = radius
 
     def area(self) -> float:
@@ -52,17 +115,30 @@ class Circle(Shape):
         return math.pi * self.radius ** 2
 
 class Rectangle(Shape):
-    def __init__(self, width: float, height: float):
+    def __init__(self, width: float, height: float, color: str = "black"):
+        super().__init__(color)
         self.width = width
         self.height = height
 
     def area(self) -> float:
         return self.width * self.height
 
-# Polymorphism
-shapes: list[Shape] = [Circle(5), Rectangle(3, 4)]
+# Polymorphism - same interface, different behavior
+shapes: list[Shape] = [Circle(5, "red"), Rectangle(3, 4, "blue")]
 for s in shapes:
-    print(f"{type(s).__name__}: area = {s.area():.2f}")</code></pre>
+    print(s.describe())
+# red Circle, area=78.54
+# blue Rectangle, area=12.00</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2"><code>isinstance()</code> and <code>issubclass()</code></h4>
+<pre><code>c = Circle(5)
+print(isinstance(c, Circle))     # True
+print(isinstance(c, Shape))      # True  (inheritance)
+print(isinstance(c, Rectangle))  # False
+
+print(issubclass(Circle, Shape))      # True
+print(issubclass(Circle, Rectangle))  # False</code></pre>
+
         <h4 class="font-semibold text-slate-800 mt-4 mb-2">Multiple Inheritance and MRO</h4>
 <pre><code>class A:
     def greet(self): return "A"
@@ -78,16 +154,62 @@ class D(B, C):
 
 d = D()
 print(d.greet())          # B (follows MRO)
-print(D.__mro__)          # D -> B -> C -> A -> object</code></pre>
+print(D.__mro__)
+# (D, B, C, A, object) - C3 linearization</code></pre>
         <div class="note">Python uses C3 Linearization for method resolution order (MRO). Java does not support multiple class inheritance (only interface inheritance). C++ supports it but with the diamond problem complexity.</div>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2"><code>super()</code> in Multiple Inheritance</h4>
+<pre><code>class Logger:
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        print(f"Logger init")
+
+    def log(self, msg):
+        print(f"[LOG] {msg}")
+
+class Serializable:
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        print(f"Serializable init")
+
+    def to_dict(self):
+        return vars(self)
+
+class User(Logger, Serializable):
+    def __init__(self, name, **kwargs):
+        super().__init__(**kwargs)   # Calls through entire MRO chain
+        self.name = name
+
+u = User("Alice")
+u.log("created")            # [LOG] created
+print(u.to_dict())          # {'name': 'Alice'}
+print(User.__mro__)
+# (User, Logger, Serializable, object)</code></pre>
+        <div class="note"><strong>Cooperative multiple inheritance:</strong> use <code>**kwargs</code> in <code>__init__</code> and always call <code>super().__init__(**kwargs)</code> so the MRO chain works correctly.</div>
       </section>
 
+      <!-- ==================== 6.3 ENCAPSULATION ==================== -->
       <section id="encapsulation">
         <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">6.3 Encapsulation and Properties</h3>
-        <p class="mb-3">Python uses a convention-based approach instead of access modifiers (<code>public</code>, <code>private</code>, <code>protected</code>). A single underscore <code>_attr</code> means "protected by convention"; a double underscore <code>__attr</code> triggers name mangling.</p>
+        <p class="mb-3">Python uses a convention-based approach instead of access modifiers (<code>public</code>, <code>private</code>, <code>protected</code>). A single underscore <code>_attr</code> means &#8220;protected by convention&#8221;; a double underscore <code>__attr</code> triggers name mangling.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Naming Conventions</h4>
+<pre><code>class Example:
+    def __init__(self):
+        self.public = 1         # Public - accessible anywhere
+        self._protected = 2     # Protected by convention - don't touch externally
+        self.__private = 3      # Name-mangled to _Example__private
+
+e = Example()
+print(e.public)               # 1
+print(e._protected)           # 2  (accessible, but discouraged)
+# print(e.__private)          # AttributeError!
+print(e._Example__private)    # 3  (mangled name - don't use this)</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Properties (Getters and Setters)</h4>
 <pre><code>class Temperature:
     def __init__(self, celsius: float):
-        self._celsius = celsius   # "protected" by convention
+        self.celsius = celsius   # Uses the setter!
 
     @property
     def celsius(self) -> float:
@@ -101,15 +223,37 @@ print(D.__mro__)          # D -> B -> C -> A -> object</code></pre>
 
     @property
     def fahrenheit(self) -> float:
+        """Read-only computed property."""
         return self._celsius * 9/5 + 32
+
+    @fahrenheit.setter
+    def fahrenheit(self, value: float):
+        self.celsius = (value - 32) * 5/9
 
 t = Temperature(100)
 print(t.fahrenheit)     # 212.0
-t.celsius = -300        # ValueError!</code></pre>
+t.fahrenheit = 32
+print(t.celsius)        # 0.0
+# t.celsius = -300      # ValueError: Below absolute zero</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Property Comparison: Python vs C++/Java</h4>
+        <table>
+          <thead><tr><th>Feature</th><th>C++ / Java</th><th>Python</th></tr></thead>
+          <tbody>
+            <tr><td>Private field</td><td><code>private int x;</code></td><td><code>self._x</code> (convention)</td></tr>
+            <tr><td>Getter</td><td><code>int getX()</code></td><td><code>@property</code></td></tr>
+            <tr><td>Setter</td><td><code>void setX(int v)</code></td><td><code>@x.setter</code></td></tr>
+            <tr><td>Usage</td><td><code>obj.getX()</code></td><td><code>obj.x</code> (looks like attribute)</td></tr>
+          </tbody>
+        </table>
       </section>
 
+      <!-- ==================== 6.4 DUNDER METHODS ==================== -->
       <section id="dunder-methods">
         <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">6.4 Dunder Methods (Operator Overloading)</h3>
+        <p class="mb-3">Dunder (double-underscore) methods let you define how your objects behave with built-in operations. This is similar to operator overloading in C++ but uses named methods instead of the <code>operator</code> keyword.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Arithmetic Operators</h4>
 <pre><code>class Vector2D:
     def __init__(self, x, y):
         self.x = x
@@ -118,14 +262,19 @@ t.celsius = -300        # ValueError!</code></pre>
     def __add__(self, other):
         return Vector2D(self.x + other.x, self.y + other.y)
 
-    def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
+    def __sub__(self, other):
+        return Vector2D(self.x - other.x, self.y - other.y)
 
-    def __len__(self):
-        return 2
+    def __mul__(self, scalar):
+        """Scalar multiplication: v * 3"""
+        return Vector2D(self.x * scalar, self.y * scalar)
 
-    def __getitem__(self, index):
-        return (self.x, self.y)[index]
+    def __rmul__(self, scalar):
+        """Reverse multiply: 3 * v"""
+        return self.__mul__(scalar)
+
+    def __neg__(self):
+        return Vector2D(-self.x, -self.y)
 
     def __repr__(self):
         return f"Vector2D({self.x}, {self.y})"
@@ -133,12 +282,109 @@ t.celsius = -300        # ValueError!</code></pre>
 a = Vector2D(1, 2)
 b = Vector2D(3, 4)
 print(a + b)        # Vector2D(4, 6)
-print(a == b)       # False
-print(a[0])         # 1</code></pre>
+print(a - b)        # Vector2D(-2, -2)
+print(a * 3)        # Vector2D(3, 6)
+print(3 * a)        # Vector2D(3, 6)  - uses __rmul__
+print(-a)           # Vector2D(-1, -2)</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Comparison Operators</h4>
+<pre><code>from functools import total_ordering
+
+@total_ordering   # Generates <=, >, >= from __eq__ and __lt__
+class Student:
+    def __init__(self, name, gpa):
+        self.name = name
+        self.gpa = gpa
+
+    def __eq__(self, other):
+        return self.gpa == other.gpa
+
+    def __lt__(self, other):
+        return self.gpa < other.gpa
+
+    def __repr__(self):
+        return f"{self.name}({self.gpa})"
+
+students = [Student("Alice", 3.9), Student("Bob", 3.5), Student("Carol", 3.7)]
+print(sorted(students))             # [Bob(3.5), Carol(3.7), Alice(3.9)]
+print(Student("Alice", 3.9) > Student("Bob", 3.5))  # True</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Container Protocol</h4>
+<pre><code>class Deck:
+    """A deck of cards implementing container protocol."""
+
+    def __init__(self):
+        suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
+        ranks = ['2','3','4','5','6','7','8','9','10','J','Q','K','A']
+        self.cards = [f"{r} of {s}" for s in suits for r in ranks]
+
+    def __len__(self):
+        return len(self.cards)
+
+    def __getitem__(self, index):
+        return self.cards[index]
+
+    def __contains__(self, card):
+        return card in self.cards
+
+    def __iter__(self):
+        return iter(self.cards)
+
+deck = Deck()
+print(len(deck))                   # 52
+print(deck[0])                     # 2 of Hearts
+print(deck[-1])                    # A of Spades
+print("A of Spades" in deck)       # True
+print(deck[0:3])                   # First 3 cards (slicing works!)
+
+# Iteration works because of __iter__
+for card in deck:
+    if card.startswith("A"):
+        print(card)                # All aces</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Callable Objects</h4>
+<pre><code>class Multiplier:
+    """An object that acts like a function."""
+    def __init__(self, factor):
+        self.factor = factor
+
+    def __call__(self, value):
+        return value * self.factor
+
+double = Multiplier(2)
+triple = Multiplier(3)
+print(double(5))       # 10
+print(triple(5))       # 15
+print(callable(double)) # True</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Common Dunder Methods Reference</h4>
+        <table>
+          <thead><tr><th>Method</th><th>Triggered By</th><th>C++ Equivalent</th></tr></thead>
+          <tbody>
+            <tr><td><code>__init__</code></td><td><code>MyClass()</code></td><td>Constructor</td></tr>
+            <tr><td><code>__repr__</code></td><td><code>repr(obj)</code></td><td><code>operator&lt;&lt;</code> (stream)</td></tr>
+            <tr><td><code>__str__</code></td><td><code>str(obj)</code>, <code>print()</code></td><td><code>operator&lt;&lt;</code></td></tr>
+            <tr><td><code>__len__</code></td><td><code>len(obj)</code></td><td><code>.size()</code></td></tr>
+            <tr><td><code>__getitem__</code></td><td><code>obj[key]</code></td><td><code>operator[]</code></td></tr>
+            <tr><td><code>__setitem__</code></td><td><code>obj[key] = val</code></td><td><code>operator[]</code></td></tr>
+            <tr><td><code>__contains__</code></td><td><code>x in obj</code></td><td><code>.find() != end()</code></td></tr>
+            <tr><td><code>__iter__</code></td><td><code>for x in obj</code></td><td><code>begin()/end()</code></td></tr>
+            <tr><td><code>__call__</code></td><td><code>obj()</code></td><td><code>operator()</code></td></tr>
+            <tr><td><code>__add__</code></td><td><code>a + b</code></td><td><code>operator+</code></td></tr>
+            <tr><td><code>__eq__</code></td><td><code>a == b</code></td><td><code>operator==</code></td></tr>
+            <tr><td><code>__lt__</code></td><td><code>a &lt; b</code></td><td><code>operator&lt;</code></td></tr>
+            <tr><td><code>__hash__</code></td><td><code>hash(obj)</code>, dict keys</td><td><code>std::hash</code></td></tr>
+            <tr><td><code>__bool__</code></td><td><code>bool(obj)</code>, <code>if obj:</code></td><td><code>operator bool()</code></td></tr>
+            <tr><td><code>__enter__/__exit__</code></td><td><code>with obj:</code></td><td>RAII destructor</td></tr>
+          </tbody>
+        </table>
       </section>
 
+      <!-- ==================== 6.5 CLASS & STATIC METHODS ==================== -->
       <section id="class-static">
         <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">6.5 Class Methods and Static Methods</h3>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Class Methods &#8212; Alternative Constructors</h4>
 <pre><code>class Date:
     def __init__(self, year, month, day):
         self.year = year
@@ -147,26 +393,429 @@ print(a[0])         # 1</code></pre>
 
     @classmethod
     def from_string(cls, date_str: str):
-        """Alternative constructor (factory method)."""
+        """Alternative constructor from 'YYYY-MM-DD' string."""
         y, m, d = map(int, date_str.split("-"))
-        return cls(y, m, d)
+        return cls(y, m, d)     # cls, not Date - works with subclasses!
+
+    @classmethod
+    def today(cls):
+        """Alternative constructor for today's date."""
+        import datetime
+        t = datetime.date.today()
+        return cls(t.year, t.month, t.day)
+
+    def __repr__(self):
+        return f"Date({self.year}, {self.month}, {self.day})"
+
+d1 = Date(2024, 3, 15)
+d2 = Date.from_string("2024-03-15")
+d3 = Date.today()
+print(d1)  # Date(2024, 3, 15)</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Static Methods &#8212; Utilities</h4>
+<pre><code>class MathUtils:
+    @staticmethod
+    def is_even(n: int) -> bool:
+        return n % 2 == 0
 
     @staticmethod
-    def is_valid(year, month, day) -> bool:
-        return 1 <= month <= 12 and 1 <= day <= 31
+    def factorial(n: int) -> int:
+        result = 1
+        for i in range(2, n + 1):
+            result *= i
+        return result
 
-d = Date.from_string("2024-03-15")
-print(Date.is_valid(2024, 13, 1))  # False</code></pre>
+print(MathUtils.is_even(4))     # True
+print(MathUtils.factorial(5))   # 120</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Comparison: Instance vs Class vs Static</h4>
+        <table>
+          <thead><tr><th>Type</th><th>First Param</th><th>Access</th><th>Use Case</th></tr></thead>
+          <tbody>
+            <tr><td>Instance method</td><td><code>self</code></td><td>Instance + class data</td><td>Normal behavior</td></tr>
+            <tr><td>Class method</td><td><code>cls</code></td><td>Class data only</td><td>Alternative constructors</td></tr>
+            <tr><td>Static method</td><td>None</td><td>No implicit access</td><td>Utility functions</td></tr>
+          </tbody>
+        </table>
       </section>
 
+      <!-- ==================== 6.6 ABSTRACT BASE CLASSES ==================== -->
+      <section id="abc">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">6.6 Abstract Base Classes</h3>
+        <p class="mb-3">Abstract classes define interfaces that subclasses must implement &#8212; similar to <code>abstract class</code> in Java or pure virtual functions in C++. Python uses the <code>abc</code> module.</p>
+<pre><code>from abc import ABC, abstractmethod
+import math
+
+class Shape(ABC):
+    """Abstract base class - cannot be instantiated directly."""
+
+    @abstractmethod
+    def area(self) -> float:
+        """Subclasses MUST implement this."""
+        ...
+
+    @abstractmethod
+    def perimeter(self) -> float:
+        ...
+
+    def describe(self) -> str:
+        """Concrete method - inherited by all subclasses."""
+        name = type(self).__name__
+        return f"{name}: area={self.area():.2f}, perimeter={self.perimeter():.2f}"
+
+class Circle(Shape):
+    def __init__(self, radius: float):
+        self.radius = radius
+
+    def area(self) -> float:
+        return math.pi * self.radius ** 2
+
+    def perimeter(self) -> float:
+        return 2 * math.pi * self.radius
+
+class Rectangle(Shape):
+    def __init__(self, w: float, h: float):
+        self.w = w
+        self.h = h
+
+    def area(self) -> float:
+        return self.w * self.h
+
+    def perimeter(self) -> float:
+        return 2 * (self.w + self.h)
+
+# s = Shape()            # TypeError: Can't instantiate abstract class
+c = Circle(5)
+r = Rectangle(3, 4)
+print(c.describe())       # Circle: area=78.54, perimeter=31.42
+print(r.describe())       # Rectangle: area=12.00, perimeter=14.00</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Abstract Properties</h4>
+<pre><code>from abc import ABC, abstractmethod
+
+class Vehicle(ABC):
+    @property
+    @abstractmethod
+    def fuel_type(self) -> str:
+        ...
+
+    @abstractmethod
+    def start(self) -> str:
+        ...
+
+class ElectricCar(Vehicle):
+    @property
+    def fuel_type(self) -> str:
+        return "Electric"
+
+    def start(self) -> str:
+        return "Silent start"
+
+class GasCar(Vehicle):
+    @property
+    def fuel_type(self) -> str:
+        return "Gasoline"
+
+    def start(self) -> str:
+        return "Engine roar"
+
+cars = [ElectricCar(), GasCar()]
+for car in cars:
+    print(f"{car.fuel_type}: {car.start()}")
+# Electric: Silent start
+# Gasoline: Engine roar</code></pre>
+      </section>
+
+      <!-- ==================== 6.7 DATACLASSES ==================== -->
+      <section id="dataclasses">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">6.7 Dataclasses</h3>
+        <p class="mb-3">The <code>dataclasses</code> module (Python 3.7+) auto-generates <code>__init__</code>, <code>__repr__</code>, <code>__eq__</code>, and more. Ideal for classes that mainly hold data &#8212; similar to C++ structs or Java records.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Basic Dataclass</h4>
+<pre><code>from dataclasses import dataclass
+
+@dataclass
+class Student:
+    name: str
+    gpa: float
+    major: str = "Undeclared"   # Default value
+
+# Auto-generated __init__, __repr__, __eq__
+s1 = Student("Alice", 3.9, "CE")
+s2 = Student("Bob", 3.5)
+s3 = Student("Alice", 3.9, "CE")
+
+print(s1)            # Student(name='Alice', gpa=3.9, major='CE')
+print(s1 == s3)      # True  (auto __eq__ compares all fields)
+print(s1 == s2)      # False</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Dataclass Options</h4>
+<pre><code>from dataclasses import dataclass, field
+
+@dataclass(order=True, frozen=False)
+class Employee:
+    # order=True: generates __lt__, __le__, __gt__, __ge__
+    # frozen=True would make it immutable (like a tuple)
+    name: str = field(compare=False)   # Exclude from comparisons
+    salary: float = 0.0
+    skills: list = field(default_factory=list)  # Mutable default!
+
+e1 = Employee("Alice", 80000, ["Python", "SQL"])
+e2 = Employee("Bob", 75000, ["Java"])
+print(e1 > e2)       # True (compares salary only, name excluded)
+
+# Mutable defaults use default_factory (not [] directly!)
+e3 = Employee("Carol")
+e3.skills.append("C++")
+e4 = Employee("Dave")
+print(e4.skills)      # [] - independent list (not shared!)</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Frozen (Immutable) Dataclasses</h4>
+<pre><code>from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Coordinate:
+    lat: float
+    lon: float
+
+c = Coordinate(40.7, -74.0)
+# c.lat = 0.0              # FrozenInstanceError!
+
+# Frozen dataclasses are hashable - usable as dict keys
+locations = {c: "New York"}
+print(locations[Coordinate(40.7, -74.0)])  # New York</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2"><code>__post_init__</code> for Validation</h4>
+<pre><code>from dataclasses import dataclass
+
+@dataclass
+class Rectangle:
+    width: float
+    height: float
+
+    def __post_init__(self):
+        """Called after auto-generated __init__."""
+        if self.width <= 0 or self.height <= 0:
+            raise ValueError("Dimensions must be positive")
+
+    @property
+    def area(self):
+        return self.width * self.height
+
+r = Rectangle(3, 4)
+print(r.area)            # 12
+# Rectangle(-1, 4)       # ValueError: Dimensions must be positive</code></pre>
+      </section>
+
+      <!-- ==================== 6.8 COMPOSITION ==================== -->
+      <section id="composition">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">6.8 Composition vs Inheritance</h3>
+        <p class="mb-3">&#8220;Favor composition over inheritance&#8221; is a key design principle. Composition means an object <em>has-a</em> component rather than <em>is-a</em> subtype. This produces more flexible, loosely coupled designs.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Inheritance Approach (Rigid)</h4>
+<pre><code># Inheritance: "is-a" relationship
+class Animal:
+    def speak(self):
+        raise NotImplementedError
+
+class Dog(Animal):
+    def speak(self):
+        return "Woof!"
+
+class RobotDog(Dog):    # Problem: a robot is not really a Dog
+    def charge(self):
+        return "Charging..."</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Composition Approach (Flexible)</h4>
+<pre><code># Composition: "has-a" relationship
+class Engine:
+    def __init__(self, horsepower):
+        self.horsepower = horsepower
+
+    def start(self):
+        return f"Engine ({self.horsepower}hp) started"
+
+class Transmission:
+    def __init__(self, type_name):
+        self.type_name = type_name
+
+    def shift(self, gear):
+        return f"{self.type_name}: shifted to gear {gear}"
+
+class Car:
+    def __init__(self, model, engine, transmission):
+        self.model = model
+        self.engine = engine             # has-a Engine
+        self.transmission = transmission  # has-a Transmission
+
+    def drive(self):
+        return f"{self.model}: {self.engine.start()}, {self.transmission.shift(1)}"
+
+# Easy to swap components!
+car1 = Car("Sedan", Engine(200), Transmission("Automatic"))
+car2 = Car("Sports", Engine(400), Transmission("Manual"))
+print(car1.drive())
+# Sedan: Engine (200hp) started, Automatic: shifted to gear 1</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Delegation Pattern</h4>
+<pre><code>class Database:
+    def __init__(self):
+        self._store = {}
+
+    def insert(self, key, value):
+        self._store[key] = value
+
+    def get(self, key):
+        return self._store.get(key)
+
+class CachedDatabase:
+    """Wraps Database with caching - composition + delegation."""
+
+    def __init__(self, db: Database):
+        self._db = db
+        self._cache = {}
+
+    def insert(self, key, value):
+        self._cache[key] = value
+        self._db.insert(key, value)
+
+    def get(self, key):
+        if key in self._cache:
+            return self._cache[key]
+        value = self._db.get(key)
+        if value is not None:
+            self._cache[key] = value
+        return value
+
+db = CachedDatabase(Database())
+db.insert("user:1", "Alice")
+print(db.get("user:1"))      # Alice (from cache)</code></pre>
+      </section>
+
+      <!-- ==================== 6.9 SLOTS ==================== -->
+      <section id="slots">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">6.9 <code>__slots__</code> for Memory Efficiency</h3>
+        <p class="mb-3">By default, Python stores instance attributes in a per-object <code>__dict__</code>. For classes with millions of instances, <code>__slots__</code> replaces <code>__dict__</code> with a fixed-size structure, saving ~40% memory.</p>
+<pre><code>class PointDict:
+    """Regular class - each instance has a __dict__."""
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+class PointSlots:
+    """Slotted class - fixed attributes, no __dict__."""
+    __slots__ = ('x', 'y')
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+p1 = PointDict(1, 2)
+p2 = PointSlots(1, 2)
+
+# Regular class allows dynamic attributes
+p1.z = 3                    # OK
+
+# Slotted class does not
+# p2.z = 3                  # AttributeError: 'PointSlots' has no attribute 'z'
+
+import sys
+print(sys.getsizeof(p1.__dict__))  # ~104 bytes for the dict
+# p2 has no __dict__ - saves memory per instance</code></pre>
+        <div class="note"><strong>When to use <code>__slots__</code>:</strong> Only when creating very large numbers of instances (millions). For normal usage, the flexibility of <code>__dict__</code> is preferred.</div>
+      </section>
+
+      <!-- ==================== 6.10 CONTEXT MANAGERS ==================== -->
+      <section id="context-managers">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">6.10 Context Managers (<code>with</code> Statement)</h3>
+        <p class="mb-3">Context managers ensure cleanup code runs even if an exception occurs &#8212; similar to RAII in C++ or try-with-resources in Java. Implement <code>__enter__</code> and <code>__exit__</code>.</p>
+<pre><code>class Timer:
+    """Context manager to time a block of code."""
+    import time
+
+    def __enter__(self):
+        import time
+        self.start = time.perf_counter()
+        return self    # Bound to the 'as' variable
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        import time
+        self.elapsed = time.perf_counter() - self.start
+        print(f"Elapsed: {self.elapsed:.4f}s")
+        return False   # Don't suppress exceptions
+
+with Timer() as t:
+    total = sum(range(1_000_000))
+# Elapsed: 0.0312s
+print(f"Result: {total}, took {t.elapsed:.4f}s")</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Practical Example: Database Connection</h4>
+<pre><code>class DatabaseConnection:
+    def __init__(self, db_name):
+        self.db_name = db_name
+        self.connected = False
+
+    def __enter__(self):
+        print(f"Connecting to {self.db_name}...")
+        self.connected = True
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print(f"Closing connection to {self.db_name}")
+        self.connected = False
+        if exc_type:
+            print(f"Error occurred: {exc_val}")
+        return False   # Re-raise any exception
+
+    def query(self, sql):
+        if not self.connected:
+            raise RuntimeError("Not connected")
+        return f"Results for: {sql}"
+
+# Connection is ALWAYS closed, even if an error occurs
+with DatabaseConnection("mydb") as db:
+    result = db.query("SELECT * FROM users")
+    print(result)
+# Connecting to mydb...
+# Results for: SELECT * FROM users
+# Closing connection to mydb</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Simpler Context Managers with <code>contextlib</code></h4>
+<pre><code>from contextlib import contextmanager
+
+@contextmanager
+def temp_directory(path):
+    """Create a temporary directory, clean up after use."""
+    import os
+    os.makedirs(path, exist_ok=True)
+    try:
+        yield path          # Everything before yield = __enter__
+    finally:
+        import shutil
+        shutil.rmtree(path) # Everything after yield = __exit__
+
+# Usage: directory is auto-deleted after the block
+# with temp_directory("/tmp/work") as d:
+#     # do work in d
+#     pass</code></pre>
+      </section>
+
+      <!-- ==================== EXERCISES ==================== -->
       <section id="exercises" class="bg-white border border-slate-200 rounded-xl p-6 mt-8 shadow-sm">
         <h2 class="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>Exercises</h2>
         <ol class="list-decimal list-inside space-y-3 text-sm text-slate-700">
-          <li>Create a <code>BankAccount</code> class with <code>deposit</code>, <code>withdraw</code> (with balance validation), and a <code>balance</code> property.</li>
-          <li>Implement a <code>Shape</code> hierarchy with <code>Circle</code>, <code>Rectangle</code>, and <code>Triangle</code>. Use polymorphism to compute total area of a list.</li>
-          <li>Overload <code>__add__</code>, <code>__sub__</code>, <code>__mul__</code>, and <code>__eq__</code> for a <code>Matrix</code> class.</li>
-          <li>Create a class with a <code>@classmethod</code> alternative constructor that builds from a JSON string.</li>
-          <li>Explain MRO for a diamond-inheritance scenario with four classes, predicting the output of <code>__mro__</code>.</li>
+          <li><strong>BankAccount:</strong> Create a <code>BankAccount</code> class with <code>deposit</code>, <code>withdraw</code> (with balance validation), a <code>balance</code> property, and a <code>__str__</code> method. Add a <code>SavingsAccount</code> subclass with an interest rate and a <code>apply_interest()</code> method.</li>
+          <li><strong>Shape Hierarchy:</strong> Build an abstract <code>Shape</code> class with <code>area()</code> and <code>perimeter()</code>. Implement <code>Circle</code>, <code>Rectangle</code>, and <code>Triangle</code>. Write a function that takes a list of shapes and returns the one with the largest area.</li>
+          <li><strong>Vector Class:</strong> Implement a full <code>Vector2D</code> class with <code>__add__</code>, <code>__sub__</code>, <code>__mul__</code> (scalar and dot product), <code>__abs__</code> (magnitude), <code>__eq__</code>, <code>__hash__</code>, <code>__bool__</code> (False if zero vector), and make it iterable.</li>
+          <li><strong>Matrix Class:</strong> Create a <code>Matrix</code> class with <code>__add__</code>, <code>__mul__</code> (matrix multiplication), <code>__getitem__</code> (for <code>m[row][col]</code>), <code>__repr__</code>, and a <code>@classmethod</code> <code>identity(n)</code> that creates an n&#215;n identity matrix.</li>
+          <li><strong>Linked List:</strong> Implement a singly linked list with <code>append</code>, <code>prepend</code>, <code>__len__</code>, <code>__iter__</code>, <code>__contains__</code>, and <code>__repr__</code>.</li>
+          <li><strong>Dataclass Practice:</strong> Create a <code>@dataclass</code> for a <code>Product</code> with name, price, quantity, and a <code>@property</code> for <code>total_value</code>. Make it orderable by price. Create a frozen version for use as dictionary keys.</li>
+          <li><strong>Composition Design:</strong> Design a <code>Computer</code> class using composition with <code>CPU</code>, <code>RAM</code>, and <code>Storage</code> components. Each component should have its own attributes and a <code>specs()</code> method. The <code>Computer</code> should aggregate all specs.</li>
+          <li><strong>Context Manager:</strong> Write a context manager class <code>FileLogger</code> that logs the start/end time and any exceptions to a file. Test it with both successful and failing code blocks.</li>
+          <li><strong>MRO Prediction:</strong> Given this hierarchy: <code>A</code>, <code>B(A)</code>, <code>C(A)</code>, <code>D(B, C)</code>, <code>E(C)</code>, <code>F(D, E)</code> &#8212; predict the MRO of <code>F</code>, then verify with <code>F.__mro__</code>.</li>
+          <li><strong>Plugin System:</strong> Create a base <code>Plugin</code> ABC with an <code>execute(data)</code> method. Implement <code>UpperPlugin</code> (uppercases strings), <code>FilterPlugin</code> (removes items), and <code>SortPlugin</code>. Write a <code>Pipeline</code> class that chains plugins using composition.</li>
+          <li><strong>Custom Collection:</strong> Create a <code>SortedList</code> class that maintains elements in sorted order. Implement <code>add(item)</code>, <code>__contains__</code> (binary search), <code>__len__</code>, <code>__getitem__</code>, <code>__iter__</code>, and <code>__repr__</code>.</li>
+          <li><strong>Slots vs Dict Benchmark:</strong> Create two equivalent classes (one with <code>__slots__</code>, one without). Create 1 million instances of each and compare memory usage using <code>sys.getsizeof()</code> or <code>tracemalloc</code>.</li>
         </ol>
       </section>
 
