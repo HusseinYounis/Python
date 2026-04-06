@@ -176,6 +176,75 @@ print(a % b)    # 2    Modulo
 print(a ** b)   # 1419857  Exponentiation</code></pre>
         <div class="note">In C++ and Java, <code>17 / 5</code> performs integer division yielding <code>3</code>. In Python, <code>/</code> always performs true division. Use <code>//</code> for floor division.</div>
 
+        <h4 class="font-semibold text-slate-800 mt-6 mb-2" id="operator-precedence">Precedence and Associativity of Arithmetic Operators</h4>
+        <p class="mb-3"><strong>Operator precedence</strong> determines which operator is evaluated first when multiple operators appear in one expression. <strong>Associativity</strong> determines the direction of evaluation when two operators share the same precedence level. Python's arithmetic operators, ordered from highest to lowest precedence:</p>
+
+        <table>
+          <tr><th>Precedence</th><th>Operator(s)</th><th>Description</th><th>Associativity</th></tr>
+          <tr><td>1 (highest)</td><td><code>**</code></td><td>Exponentiation</td><td>Right-to-left</td></tr>
+          <tr><td>2</td><td><code>+x</code> &nbsp;<code>-x</code></td><td>Unary plus / unary minus</td><td>Right-to-left</td></tr>
+          <tr><td>3</td><td><code>*</code> &nbsp;<code>/</code> &nbsp;<code>//</code> &nbsp;<code>%</code></td><td>Multiplication, division, floor division, modulo</td><td>Left-to-right</td></tr>
+          <tr><td>4 (lowest)</td><td><code>+</code> &nbsp;<code>-</code></td><td>Addition, subtraction</td><td>Left-to-right</td></tr>
+        </table>
+
+<pre><code># --- Precedence examples ---
+
+# ** before * before +
+print(2 + 3 * 4 ** 2)   # 50  →  2 + 3 * 16  →  2 + 48
+print((2 + 3) * 4 ** 2) # 80  →  5 * 16
+
+# / and // before +
+print(10 + 6 / 2)        # 13.0  →  10 + 3.0
+print(10 + 6 // 2)       # 13    →  10 + 3
+
+# Unary minus applies before **... mostly (see below)
+print(-2 ** 2)            # -4  (** first, then unary -: -(2**2))
+print((-2) ** 2)          # 4   (parentheses force left side first)</code></pre>
+
+        <div class="note"><strong>Gotcha &mdash; unary minus and <code>**</code>:</strong> Even though unary minus is listed at a higher precedence row, Python parses <code>-2 ** 2</code> as <code>-(2 ** 2) = -4</code>, <em>not</em> <code>(-2) ** 2 = 4</code>. This matches mathematical convention and is the same behavior as C++. Always use parentheses when negating a base in an exponentiation.</div>
+
+<pre><code># --- Right-to-left associativity of ** ---
+# a ** b ** c  is evaluated as  a ** (b ** c)
+print(2 ** 3 ** 2)    # 512  →  2 ** (3**2)  =  2 ** 9  =  512
+print((2 ** 3) ** 2)  # 64   →  (2**3) ** 2  =  8 ** 2  =  64
+
+# --- Left-to-right associativity of +, -, *, / ---
+# a - b - c  is evaluated as  (a - b) - c
+print(20 - 5 - 3)     # 12   →  (20 - 5) - 3  =  15 - 3
+print(20 - (5 - 3))   # 18   →  different result!
+
+# True division is also left-to-right
+print(100 / 5 / 2)    # 10.0  →  (100 / 5) / 2  =  20.0 / 2</code></pre>
+
+        <div class="comparison">
+          <div>
+            <h4>C++ Arithmetic Precedence</h4>
+<pre><code>// C++ precedence is very close to Python
+// ** does not exist in C++ — use pow()
+#include &lt;cmath&gt;
+
+int a = 2 + 3 * 4;     // 14  (same as Python)
+int b = 20 - 5 - 3;    // 12  (same left-to-right)
+
+// No ** operator in C++
+double x = pow(2, pow(3, 2));  // 512 (manual right-assoc)
+double y = -pow(2, 2);         // -4  (same as Python -2**2)</code></pre>
+          </div>
+          <div>
+            <h4>Python Arithmetic Precedence</h4>
+<pre><code># Python adds ** with right-to-left associativity
+a = 2 + 3 * 4       # 14
+b = 20 - 5 - 3      # 12  (left-to-right)
+
+# ** is a first-class operator, right-associative
+x = 2 ** 3 ** 2     # 512  (right-to-left)
+y = -2 ** 2         # -4   (** before unary -)
+
+# Use parentheses to override any precedence
+z = (2 ** 3) ** 2   # 64</code></pre>
+          </div>
+        </div>
+
         <h4 class="font-semibold text-slate-800 mt-4 mb-2">Readable Numeric Literals &mdash; Underscore Separators</h4>
         <p class="mb-3">Python allows underscores (<code>_</code>) inside numeric literals as visual separators. They are ignored by the interpreter and exist only to make large numbers easier to read:</p>
 <pre><code># Without underscores (hard to read)
@@ -507,15 +576,423 @@ print(host)  # "localhost" (first truthy value wins)</code></pre>
         <div class="note"><strong>C++ comparison:</strong> C++ <code>&amp;&amp;</code> and <code>||</code> also short-circuit, but they always return <code>true</code> or <code>false</code> (a boolean). Python returns the <em>actual operand</em> that determined the result, which makes patterns like <code>value or default</code> possible.</div>
       </section>
 
-      <section id="type-conversion">
-        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">2.5 Type Conversion</h3>
-        <p class="mb-3">Python performs limited implicit type promotion (e.g., <code>int</code> to <code>float</code> in mixed arithmetic). Explicit conversion uses constructor-like calls.</p>
-<pre><code>x = int("42")          # str to int
-y = float(7)           # int to float
-s = str(3.14)          # float to str
-b = bool(0)            # int to bool - False
+      <section id="membership-operators">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">2.5 Membership Operators</h3>
+        <p class="mb-3">Python provides two membership operators that test whether a value exists inside a container. They work on <strong>any iterable</strong> &mdash; strings, lists, tuples, sets, and dictionaries &mdash; and always return a <code>bool</code>.</p>
 
-result = 10 + 2.5      # int + float = float (12.5)</code></pre>
+        <table>
+          <tr><th>Operator</th><th>Meaning</th><th>Returns</th></tr>
+          <tr><td><code>x in s</code></td><td><code>True</code> if <code>x</code> is found in <code>s</code></td><td><code>bool</code></td></tr>
+          <tr><td><code>x not in s</code></td><td><code>True</code> if <code>x</code> is <em>not</em> found in <code>s</code></td><td><code>bool</code></td></tr>
+        </table>
+
+        <h4 class="font-semibold text-slate-800 mt-6 mb-2">Strings &mdash; Substring Test</h4>
+        <p class="mb-3">On strings, <code>in</code> checks for a <strong>substring</strong>, not just a single character.</p>
+<pre><code>text = "Hello, Python!"
+
+print("Python" in text)       # True
+print("python" in text)       # False  (case-sensitive)
+print("lo" in text)           # True   (substring match)
+print("z" in text)            # False
+print("" in text)             # True   (empty string is always found)
+
+# not in is the readable alternative to 'not (x in s)'
+print("Java" not in text)     # True
+print("Hello" not in text)    # False</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Lists and Tuples &mdash; Element Test</h4>
+        <p class="mb-3">On lists and tuples, <code>in</code> performs a <strong>linear search</strong> from left to right (O(n) time).</p>
+<pre><code>primes = [2, 3, 5, 7, 11, 13]
+
+print(5 in primes)        # True
+print(4 in primes)        # False
+print(100 not in primes)  # True
+
+# Works on tuples identically
+coords = (10, 20, 30)
+print(20 in coords)       # True
+
+# Checks for the whole element, not sub-lists
+nested = [[1, 2], [3, 4]]
+print([1, 2] in nested)   # True   (finds the sublist as one element)
+print(1 in nested)        # False  (1 is not a top-level element)</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Dictionaries &mdash; Key Test</h4>
+        <p class="mb-3">On dictionaries, <code>in</code> tests for <strong>keys</strong>, not values. Key lookup uses a hash table, so it runs in O(1) average time.</p>
+<pre><code>config = {"host": "localhost", "port": 8080, "debug": True}
+
+print("host" in config)        # True   (key exists)
+print("localhost" in config)   # False  (values are NOT checked)
+print("timeout" not in config) # True   (key absent)
+
+# To check values, iterate .values()
+print(8080 in config.values())  # True
+
+# To check key-value pairs, iterate .items()
+print(("port", 8080) in config.items())  # True</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Sets &mdash; O(1) Membership Test</h4>
+        <p class="mb-3">Sets use a hash table internally, making <code>in</code> O(1) average time &mdash; the most efficient container for repeated membership tests.</p>
+<pre><code>allowed = {"admin", "editor", "viewer"}
+
+print("admin" in allowed)      # True
+print("guest" in allowed)      # False
+print("guest" not in allowed)  # True
+
+# Prefer sets over lists when you only need membership testing
+# List:  O(n) — scans every element
+# Set:   O(1) — hash lookup</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Performance at a Glance</h4>
+        <table>
+          <tr><th>Container</th><th>What is tested</th><th>Time Complexity</th></tr>
+          <tr><td><code>str</code></td><td>Substring</td><td>O(n &middot; m) <small>(n = len(s), m = len(x))</small></td></tr>
+          <tr><td><code>list</code></td><td>Element value (linear scan)</td><td>O(n)</td></tr>
+          <tr><td><code>tuple</code></td><td>Element value (linear scan)</td><td>O(n)</td></tr>
+          <tr><td><code>dict</code></td><td>Key (hash lookup)</td><td>O(1) average</td></tr>
+          <tr><td><code>set</code></td><td>Element (hash lookup)</td><td>O(1) average</td></tr>
+        </table>
+
+        <div class="comparison">
+          <div>
+            <h4>C++ Equivalent</h4>
+<pre><code>// C++ has no built-in 'in' operator.
+// Use algorithms or container methods.
+#include &lt;algorithm&gt;
+#include &lt;set&gt;
+#include &lt;unordered_set&gt;
+#include &lt;string&gt;
+
+// Vector / list  — linear search O(n)
+std::vector&lt;int&gt; v = {2, 3, 5, 7};
+bool found = std::find(v.begin(), v.end(), 5) != v.end();
+
+// set / unordered_set  — O(log n) / O(1)
+std::unordered_set&lt;std::string&gt; roles = {"admin", "editor"};
+bool ok = roles.count("admin") &gt; 0;  // or roles.contains() in C++20
+
+// String substring
+std::string s = "Hello, Python!";
+bool sub = s.find("Python") != std::string::npos;</code></pre>
+          </div>
+          <div>
+            <h4>Python Equivalent</h4>
+<pre><code># Python — uniform 'in' operator across all containers
+
+# List  (linear scan)
+v = [2, 3, 5, 7]
+found = 5 in v
+
+# Set  (O(1) hash lookup)
+roles = {"admin", "editor"}
+ok = "admin" in roles
+
+# String substring
+s = "Hello, Python!"
+sub = "Python" in s
+
+# All three look identical — Python picks
+# the right algorithm based on the type</code></pre>
+          </div>
+        </div>
+
+        <div class="note"><strong>Key difference from C++:</strong> Python's <code>in</code> is a true operator with consistent syntax across all container types. C++ requires different algorithms or methods for each container (<code>std::find</code>, <code>.count()</code>, <code>.find()</code>), and there is no single unified syntax.</div>
+      </section>
+
+      <section id="identity-operators">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">2.6 Identity Operators</h3>
+        <p class="mb-3">Identity operators test whether two names refer to the <strong>exact same object in memory</strong>, not just whether their values are equal. This is the difference between asking "are these the same thing?" versus "do these have the same value?"</p>
+
+        <table>
+          <tr><th>Operator</th><th>Meaning</th><th>Equivalent to</th></tr>
+          <tr><td><code>x is y</code></td><td><code>True</code> if <code>x</code> and <code>y</code> point to the same object</td><td><code>id(x) == id(y)</code></td></tr>
+          <tr><td><code>x is not y</code></td><td><code>True</code> if <code>x</code> and <code>y</code> point to different objects</td><td><code>id(x) != id(y)</code></td></tr>
+        </table>
+
+        <h4 class="font-semibold text-slate-800 mt-6 mb-2"><code>is</code> vs <code>==</code> &mdash; Identity vs Equality</h4>
+        <p class="mb-3"><code>==</code> calls the object's <code>__eq__</code> method to compare <em>values</em>. <code>is</code> bypasses that entirely and compares <em>memory addresses</em> using <code>id()</code>.</p>
+<pre><code>a = [1, 2, 3]
+b = [1, 2, 3]   # same value, different object
+c = a           # c is an alias — same object as a
+
+print(a == b)   # True   (values are equal)
+print(a is b)   # False  (different objects in memory)
+
+print(a == c)   # True   (values are equal)
+print(a is c)   # True   (same object — c is just another name for a)
+
+# Mutating through one alias affects the other
+c.append(4)
+print(a)        # [1, 2, 3, 4]  — a changed too!
+print(id(a) == id(c))  # True</code></pre>
+
+        <div class="note"><strong>Rule of thumb:</strong> Use <code>==</code> to compare values. Reserve <code>is</code> for three specific cases: checking against <code>None</code>, <code>True</code>, and <code>False</code> as singletons.</div>
+
+        <h4 class="font-semibold text-slate-800 mt-6 mb-2">The Correct Way to Test for <code>None</code></h4>
+        <p class="mb-3"><code>None</code> is a singleton &mdash; there is exactly one <code>None</code> object in all of Python. The idiomatic and recommended way to test for it is with <code>is</code>, not <code>==</code>. PEP 8 (Python's style guide) explicitly requires this.</p>
+<pre><code>result = None
+
+# Correct (PEP 8 style)
+if result is None:
+    print("no result yet")
+
+if result is not None:
+    print("got a result:", result)
+
+# Technically works but wrong style
+if result == None:     # avoid — relies on __eq__
+    pass
+if not result:         # WRONG — also catches 0, "", [], False!
+    pass</code></pre>
+
+        <h4 class="font-semibold text-slate-800 mt-4 mb-2">Integer Caching &mdash; A CPython Implementation Detail</h4>
+        <p class="mb-3">CPython (the standard Python interpreter) caches all integer objects in the range <strong>-5 to 256</strong> and interns short strings. This means two variables assigned the same small integer will <code>is</code>-compare as <code>True</code> &mdash; but this is an implementation detail, not a language guarantee.</p>
+<pre><code># Small integers are cached — same object reused
+a = 100
+b = 100
+print(a is b)    # True  (both point to the cached int object 100)
+print(id(a), id(b))  # same id
+
+# Large integers are NOT cached — new objects each time
+x = 1000
+y = 1000
+print(x is y)    # False  (two separate int objects with value 1000)
+print(x == y)    # True   (values are equal)
+
+# Same applies to strings in some cases
+s1 = "hello"
+s2 = "hello"
+print(s1 is s2)  # True in CPython (interned short strings)
+
+long1 = "hello world!"
+long2 = "hello world!"
+print(long1 is long2)  # May be False (not guaranteed)</code></pre>
+        <div class="note"><strong>Never rely on <code>is</code> for integer or string equality in real code.</strong> The caching behaviour is a CPython optimisation that can change between versions and implementations (PyPy, Jython, etc.). Always use <code>==</code> to compare values.</div>
+
+        <h4 class="font-semibold text-slate-800 mt-6 mb-2">Comparison with C++ Pointer Comparison</h4>
+        <div class="comparison">
+          <div>
+            <h4>C++ Pointer / Reference Identity</h4>
+<pre><code>// In C++, identity comparison means comparing
+// pointer addresses
+#include &lt;iostream&gt;
+
+int main() {
+    int a = 42, b = 42;
+    int* p = &amp;a;
+    int* q = &amp;a;  // same object
+    int* r = &amp;b;  // different object, same value
+
+    std::cout &lt;&lt; (p == q);  // 1 (true)  — same address
+    std::cout &lt;&lt; (p == r);  // 0 (false) — different address
+    std::cout &lt;&lt; (*p == *r); // 1 (true)  — same value
+
+    // nullptr check
+    int* ptr = nullptr;
+    if (ptr == nullptr) { ... }  // C++ idiom
+}</code></pre>
+          </div>
+          <div>
+            <h4>Python Identity Operators</h4>
+<pre><code># Python 'is' is the high-level equivalent of
+# comparing pointer addresses in C++
+
+a = [1, 2]
+b = [1, 2]  # same value, different object
+c = a       # alias — same object
+
+print(a is c)    # True  (same "address")
+print(a is b)    # False (different "address")
+print(a == b)    # True  (same value)
+
+# None check — Python idiom
+result = None
+if result is None:   # equivalent to: ptr == nullptr
+    pass
+
+# id() gives the memory address
+print(id(a))    # e.g. 140234567890
+print(id(c))    # same number as id(a)</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="type-conversion">
+        <h3 class="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-8">2.7 Type Conversion</h3>
+        <p class="mb-3">Python distinguishes between two kinds of type conversion: <strong>implicit</strong> (done automatically by the interpreter) and <strong>explicit</strong> (done intentionally by the programmer using built-in functions). Understanding the boundary between the two prevents subtle bugs.</p>
+
+        <h4 class="font-semibold text-slate-800 mt-6 mb-2" id="implicit-type-conversion">Implicit Type Conversion (Coercion)</h4>
+        <p class="mb-3">Implicit conversion happens automatically when Python evaluates an expression involving two different numeric types. Python always promotes the value to the <em>wider</em> type so no information is lost. The promotion hierarchy is:</p>
+        <p class="mb-3 font-mono text-sm text-slate-700 bg-slate-100 rounded px-3 py-2 inline-block"><code>bool</code> &rarr; <code>int</code> &rarr; <code>float</code> &rarr; <code>complex</code></p>
+<pre><code># int + float → float  (int is promoted to float)
+result = 10 + 2.5
+print(result)           # 12.5
+print(type(result))     # &lt;class 'float'&gt;
+
+# int + complex → complex  (int is promoted to complex)
+result = 3 + (1 + 2j)
+print(result)           # (4+2j)
+print(type(result))     # &lt;class 'complex'&gt;
+
+# bool is a subclass of int: True == 1, False == 0
+print(True + 5)         # 6   (True is treated as 1)
+print(False + 10)       # 10  (False is treated as 0)
+print(True * 3.14)      # 3.14
+print(sum([True, True, False, True]))  # 3  (counting Trues)</code></pre>
+
+        <div class="note"><strong>Python is not JavaScript:</strong> Python will <em>not</em> implicitly convert between unrelated types such as <code>str</code> and <code>int</code>. <code>"3" + 5</code> raises a <code>TypeError</code> in Python, while JavaScript silently produces <code>"35"</code>. Python's implicit coercion is limited strictly to the numeric promotion hierarchy.</div>
+
+<pre><code># These raise TypeError — Python refuses to guess
+# "3" + 5      → TypeError: can only concatenate str (not "int") to str
+# 10 + "20"    → TypeError: unsupported operand type(s) for +: 'int' and 'str'
+# True + "yes" → TypeError: unsupported operand type(s) for +: 'int' and 'str'</code></pre>
+
+        <div class="comparison">
+          <div>
+            <h4>C++ Implicit Conversions</h4>
+<pre><code>// C++ has many implicit conversions
+// that can silently lose data
+int   i = 3.99;    // double → int: truncated to 3!
+float f = i;       // int → float: OK
+bool  b = 42;      // int → bool: true (non-zero)
+char  c = 300;     // int → char: silently overflows!
+
+// Numeric to bool is implicit
+if (42) { }        // OK in C++
+int n = true;      // bool → int: 1</code></pre>
+          </div>
+          <div>
+            <h4>Python Implicit Conversions</h4>
+<pre><code># Python only promotes within the numeric hierarchy
+
+x = 3 + 0.99       # int + float  → float:   3.99
+z = 1 + (0+1j)     # int + complex → complex: (1+1j)
+n = True + 6       # bool + int   → int:     7
+
+# Python does NOT do these silently:
+# int  → str  (needs str(x))
+# float → int  (needs int(x))
+# str  → bool  based on content</code></pre>
+          </div>
+        </div>
+
+        <h4 class="font-semibold text-slate-800 mt-6 mb-2" id="explicit-type-conversion">Explicit Type Conversion (Type Casting)</h4>
+        <p class="mb-3">Explicit conversion uses Python's built-in constructor functions. Unlike C++ casts, these are ordinary callable objects that construct a new object of the target type.</p>
+
+        <table>
+          <tr><th>Function</th><th>Converts To</th><th>Common Sources</th></tr>
+          <tr><td><code>int(x)</code></td><td><code>int</code></td><td><code>float</code>, <code>str</code>, <code>bool</code></td></tr>
+          <tr><td><code>float(x)</code></td><td><code>float</code></td><td><code>int</code>, <code>str</code>, <code>bool</code></td></tr>
+          <tr><td><code>str(x)</code></td><td><code>str</code></td><td>any type</td></tr>
+          <tr><td><code>bool(x)</code></td><td><code>bool</code></td><td>any type (uses truthiness rules)</td></tr>
+          <tr><td><code>complex(x)</code></td><td><code>complex</code></td><td><code>int</code>, <code>float</code>, <code>str</code></td></tr>
+        </table>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2 mt-4"><code>int()</code> &mdash; Converting to Integer</p>
+<pre><code># float → int: truncates toward zero (does NOT round)
+print(int(3.9))      # 3   (not 4!)
+print(int(-3.9))     # -3  (not -4!)
+print(int(0.999))    # 0
+
+# str → int: the string must be a plain integer literal
+print(int("42"))     # 42
+print(int("-100"))   # -100
+
+# Optional base argument for non-decimal strings
+print(int("FF", 16))      # 255  (hexadecimal)
+print(int("1010", 2))     # 10   (binary)
+print(int("17", 8))       # 15   (octal)
+
+# bool → int
+print(int(True))     # 1
+print(int(False))    # 0
+
+# These raise ValueError:
+# int("3.14")   → ValueError: invalid literal for int() with base 10
+# int("12 kg")  → ValueError: invalid literal for int() with base 10
+# int("")        → ValueError: invalid literal for int() with base 10</code></pre>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2 mt-4"><code>float()</code> &mdash; Converting to Float</p>
+<pre><code>print(float(7))         # 7.0
+print(float("3.14"))    # 3.14
+print(float("1e5"))     # 100000.0  (scientific notation is OK)
+print(float("inf"))     # inf
+print(float("nan"))     # nan
+print(float(True))      # 1.0
+
+# Raises ValueError:
+# float("3,14")   → ValueError (comma is not a decimal separator)
+# float("12 kg")  → ValueError</code></pre>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2 mt-4"><code>str()</code> &mdash; Converting to String</p>
+<pre><code>print(str(42))           # "42"
+print(str(3.14))         # "3.14"
+print(str(True))         # "True"
+print(str(None))         # "None"
+print(str([1, 2, 3]))    # "[1, 2, 3]"
+
+# str() never raises — every Python object has a string representation
+# because every class inherits __str__() from object</code></pre>
+
+        <p class="font-semibold text-slate-700 text-sm mb-2 mt-4"><code>bool()</code> &mdash; Truthiness Rules</p>
+        <p class="mb-3">Every Python object has a truth value. The following are <strong>falsy</strong>; everything else is truthy:</p>
+        <table>
+          <tr><th>Value</th><th>Type</th><th><code>bool()</code> result</th></tr>
+          <tr><td><code>False</code></td><td><code>bool</code></td><td><code>False</code></td></tr>
+          <tr><td><code>0</code></td><td><code>int</code></td><td><code>False</code></td></tr>
+          <tr><td><code>0.0</code></td><td><code>float</code></td><td><code>False</code></td></tr>
+          <tr><td><code>0j</code></td><td><code>complex</code></td><td><code>False</code></td></tr>
+          <tr><td><code>""</code></td><td><code>str</code></td><td><code>False</code></td></tr>
+          <tr><td><code>[]</code></td><td><code>list</code></td><td><code>False</code></td></tr>
+          <tr><td><code>()</code></td><td><code>tuple</code></td><td><code>False</code></td></tr>
+          <tr><td><code>{}</code></td><td><code>dict</code></td><td><code>False</code></td></tr>
+          <tr><td><code>None</code></td><td><code>NoneType</code></td><td><code>False</code></td></tr>
+        </table>
+<pre><code># Falsy
+print(bool(0))        # False
+print(bool(0.0))      # False
+print(bool(""))       # False
+print(bool(None))     # False
+print(bool([]))       # False
+
+# Truthy — note the surprises
+print(bool(1))        # True
+print(bool(-1))       # True  (any non-zero number)
+print(bool("0"))      # True  ("0" is a non-empty string!)
+print(bool(" "))      # True  (whitespace is also truthy)
+print(bool([0]))      # True  (list with one element, even 0)</code></pre>
+
+        <div class="note"><strong>Common pitfall:</strong> <code>bool("False")</code> is <code>True</code> &mdash; any non-empty string is truthy regardless of its content. To check if a string represents a false boolean, compare explicitly: <code>val.lower() == "false"</code>.</div>
+
+        <h4 class="font-semibold text-slate-800 mt-6 mb-2">Comparison with C++ Casts</h4>
+        <div class="comparison">
+          <div>
+            <h4>C++ Cast Syntax</h4>
+<pre><code>// Preferred: named cast
+int i = static_cast&lt;int&gt;(3.9);       // 3 (truncates)
+double d = static_cast&lt;double&gt;(5);   // 5.0
+
+// Old C-style cast (same effect)
+int n = (int)3.9;   // 3
+
+// reinterpret_cast — raw bit reinterpretation
+// (no direct Python equivalent)
+float f = 3.14f;
+int bits = *reinterpret_cast&lt;int*&gt;(&amp;f);</code></pre>
+          </div>
+          <div>
+            <h4>Python Explicit Conversion</h4>
+<pre><code># Python — just function calls, no special syntax
+i = int(3.9)      # 3   (truncates toward zero)
+d = float(5)      # 5.0
+s = str(42)       # "42"
+
+# Python has no reinterpret_cast equivalent.
+# Use struct for raw byte interpretation:
+import struct
+bits = struct.unpack('I', struct.pack('f', 3.14))[0]</code></pre>
+          </div>
+        </div>
       </section>
 
       <section id="exercises" class="bg-white border border-slate-200 rounded-xl p-6 mt-8 shadow-sm">
@@ -526,6 +1003,8 @@ result = 10 + 2.5      # int + float = float (12.5)</code></pre>
           <li>Compute the volume of a cylinder given radius and height. Display the result formatted to two decimal places.</li>
           <li>Demonstrate implicit type promotion between <code>int</code> and <code>float</code> and explain when precision loss can occur.</li>
           <li>Show how string concatenation with <code>+</code> in Python differs from Java's <code>+</code> operator when applied to non-string objects.</li>
+          <li>Write a function <code>safe_int(s)</code> that converts a string to <code>int</code>, handling the case where the string contains a float literal (e.g., <code>"3.14"</code>) without raising a <code>ValueError</code>.</li>
+          <li>Predict the output of <code>bool("False")</code>, <code>bool("0")</code>, <code>bool([])</code>, and <code>bool([0])</code>. Explain why each result is what it is.</li>
         </ol>
       </section>
 
